@@ -2,6 +2,15 @@ function removeLeadingSlash(key: string) {
   return key.replace(/^\/+/, "");
 }
 
+function replaceExtension(key: string, extension: string) {
+  const normalized = removeLeadingSlash(key);
+  const dotIndex = normalized.lastIndexOf(".");
+  if (dotIndex === -1) {
+    return `${normalized}.${extension}`;
+  }
+  return `${normalized.slice(0, dotIndex + 1)}${extension}`;
+}
+
 function splitActivityPath(key: string, prefix: "originals" | "display" | "download", activitySlug: string) {
   const normalized = removeLeadingSlash(key);
   const head = `${prefix}/${activitySlug}/`;
@@ -16,7 +25,7 @@ export function mapOriginalToDisplayKey(originalKey: string, activitySlug: strin
   if (suffix === null) {
     return originalKey;
   }
-  return `display/${activitySlug}/${suffix}`;
+  return replaceExtension(`display/${activitySlug}/${suffix}`, "jpg");
 }
 
 export function mapOriginalToDownloadKey(originalKey: string, activitySlug: string) {
@@ -24,7 +33,7 @@ export function mapOriginalToDownloadKey(originalKey: string, activitySlug: stri
   if (suffix === null) {
     return originalKey;
   }
-  return `download/${activitySlug}/${suffix}`;
+  return replaceExtension(`download/${activitySlug}/${suffix}`, "jpg");
 }
 
 export function mapDisplayToDownloadKey(displayKey: string, activitySlug: string) {

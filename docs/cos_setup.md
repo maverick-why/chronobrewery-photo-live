@@ -32,7 +32,7 @@
   - `https://photo.dbbrewbeer.com`
   - `http://localhost:3000`
 - `Method`：`PUT`, `POST`, `GET`, `HEAD`, `OPTIONS`
-- `AllowedHeaders`：`*`
+- `AllowedHeaders`：建议 `*`；若需手动填写至少包含 `authorization,content-type,pic-operations`
 - `ExposeHeaders`：`ETag`, `x-cos-request-id`
 - `MaxAgeSeconds`：`300`
 
@@ -42,9 +42,12 @@
 2. 进入 `/admin` 上传 1 张测试图。
 3. 在 COS 控制台确认已出现：
    - `originals/default/YYYY-MM-DD/{timestamp}-{random}.ext`
+   - `display/default/YYYY-MM-DD/{timestamp}-{random}.jpg`
+   - `download/default/YYYY-MM-DD/{timestamp}-{random}.jpg`
 
 ## 5. 常见报错排查
 
 - `403 SignatureDoesNotMatch`：检查 `TENCENT_SECRET_ID/KEY`、Bucket、Region 是否一致。
+- 上传成功但未生成 `display/download`：确认 Bucket 已开通并绑定数据万象（CI）。
 - 前端显示上传网络错误：优先检查 COS CORS 规则是否生效。
 - `ADMIN_USERNAME/ADMIN_PASSWORD is not configured`：Vercel 环境变量未绑定 Production 或未 Redeploy。

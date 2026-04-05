@@ -65,7 +65,7 @@ npm run dev
 - 已完成：登录 session、后台批量上传、COS 上传签名接口
 - 已完成：首页读取 COS 图片列表并按时间倒序展示，支持下载链接签名
 - 已完成：当 `display` 目录为空时，首页自动回退 `originals` 展示
-- 待完成：upload 后自动生成 `display/download`（数据万象持久化处理）
+- 已完成：上传 `originals` 时通过 `Pic-Operations` 自动生成带水印 `display/download`
 
 ## 里程碑（建议）
 

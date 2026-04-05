@@ -259,7 +259,7 @@ export function UploadPanel({ username, activitySlug }: UploadPanelProps) {
       >
         <div className="stack" style={{ gap: 12 }}>
           <p style={{ margin: 0 }}>
-            拖拽图片到这里，或点击选择文件。支持批量上传（单文件最大 50MB）。
+            拖拽图片到这里，或点击选择文件。支持批量上传（单文件最大 20MB）。
           </p>
           <label className="btn btn-primary" style={{ width: "fit-content" }}>
             选择图片
@@ -280,7 +280,7 @@ export function UploadPanel({ username, activitySlug }: UploadPanelProps) {
             <p style={{ margin: 0, color: "#af2934" }}>{globalError}</p>
           ) : (
             <p className="muted" style={{ margin: 0 }}>
-              上传后会直接进入腾讯云 COS `originals` 目录；display/download 在 M3 接入自动生成。
+              上传后会写入 `originals`，并自动生成带水印的 `display` 与 `download`。
             </p>
           )}
         </div>

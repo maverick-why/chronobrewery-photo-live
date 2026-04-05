@@ -2,6 +2,7 @@ import COS from "cos-nodejs-sdk-v5";
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromCookies } from "@/lib/auth";
 import { readCosConfig } from "@/lib/cos";
+import { mapOriginalToDisplayKey, mapOriginalToDownloadKey } from "@/lib/photo-keys";
 import {
   buildOriginalObjectKey,
   encodeObjectKeyForUrl,
@@ -15,7 +16,41 @@ type UploadPolicyPayload = {
 };
 
 const SIGN_EXPIRES_SECONDS = 10 * 60;
-const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
+const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;
+const WATERMARK_TEXT = "时光酿造所";
+
+function toUrlSafeBase64(value: string) {
+  return Buffer.from(value, "utf8").toString("base64").replace(/\+/g, "-").replace(/\//g, "_");
+}
+
+function buildPicOperations(originalKey: string, activitySlug: string) {
+  const text = toUrlSafeBase64(WATERMARK_TEXT);
+  const fill = toUrlSafeBase64("#FFFFFF");
+  const displayKey = mapOriginalToDisplayKey(originalKey, activitySlug);
+  const downloadKey = mapOriginalToDownloadKey(originalKey, activitySlug);
+
+  const displayRule =
+    `imageMogr2/thumbnail/2560x/quality/80/format/jpg` +
+    `/watermark/2/text/${text}/fontsize/36/fill/${fill}/dissolve/60/gravity/SouthEast/dx/24/dy/24`;
+
+  const downloadRule =
+    `imageMogr2/quality/92/format/jpg` +
+    `/watermark/2/text/${text}/fontsize/40/fill/${fill}/dissolve/62/gravity/SouthEast/dx/28/dy/28`;
+
+  return JSON.stringify({
+    is_pic_info: 1,
+    rules: [
+      {
+        fileid: displayKey,
+        rule: displayRule
+      },
+      {
+        fileid: downloadKey,
+        rule: downloadRule
+      }
+    ]
+  });
+}
 
 export const runtime = "nodejs";
 
@@ -42,6 +77,7 @@ export async function POST(request: NextRequest) {
   const extension = resolveImageExtension(body.filename, body.contentType);
   const activitySlug = process.env.NEXT_PUBLIC_ACTIVITY_SLUG || "default";
   const objectKey = buildOriginalObjectKey(activitySlug, extension);
+  const picOperations = buildPicOperations(objectKey, activitySlug);
 
   let config;
   try {
@@ -62,7 +98,10 @@ export async function POST(request: NextRequest) {
     SecretKey: secretKey,
     Method: "PUT",
     Pathname: pathname,
-    Headers: { host },
+    Headers: {
+      host,
+      "Pic-Operations": picOperations
+    },
     KeyTime: `${startTime};${endTime}`
   });
 
@@ -75,7 +114,12 @@ export async function POST(request: NextRequest) {
     expiresAt: endTime,
     headers: {
       Authorization: authorization,
-      "Content-Type": body.contentType || "application/octet-stream"
+      "Content-Type": body.contentType || "application/octet-stream",
+      "Pic-Operations": picOperations
+    },
+    derivatives: {
+      displayKey: mapOriginalToDisplayKey(objectKey, activitySlug),
+      downloadKey: mapOriginalToDownloadKey(objectKey, activitySlug)
     }
   });
 }
