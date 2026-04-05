@@ -9,6 +9,7 @@ const SIGN_EXPIRES_SECONDS = 60 * 10;
 
 export async function GET(request: NextRequest) {
   const key = request.nextUrl.searchParams.get("key");
+  const fallbackKey = request.nextUrl.searchParams.get("fallbackKey");
   if (!key) {
     return NextResponse.json({ error: "key is required" }, { status: 400 });
   }
@@ -23,9 +24,13 @@ export async function GET(request: NextRequest) {
   }
 
   const cos = createCosClient(config);
-  const candidates = buildDownloadKeyCandidates(key, activitySlug);
+  const candidates = [
+    ...buildDownloadKeyCandidates(key, activitySlug),
+    ...(fallbackKey ? buildDownloadKeyCandidates(fallbackKey, activitySlug) : [])
+  ];
+  const uniqueCandidates = Array.from(new Set(candidates));
 
-  for (const candidate of candidates) {
+  for (const candidate of uniqueCandidates) {
     const exists = await checkObjectExists(cos, config, candidate);
     if (!exists) {
       continue;

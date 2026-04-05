@@ -65,7 +65,11 @@ export function PhotoGallery() {
   async function handleDownload(photo: PhotoItem) {
     setDownloadingKey(photo.key);
     try {
-      const response = await fetch(`/api/download-url?key=${encodeURIComponent(photo.downloadKey)}`);
+      const response = await fetch(
+        `/api/download-url?key=${encodeURIComponent(photo.downloadKey)}&fallbackKey=${encodeURIComponent(
+          photo.originalKey
+        )}`
+      );
       const data = (await response.json().catch(() => null)) as { ok?: boolean; url?: string; error?: string } | null;
       if (!response.ok || !data?.url) {
         throw new Error(data?.error || "生成下载链接失败");
