@@ -29,6 +29,9 @@ type UploadPanelProps = {
   activitySlug: string;
 };
 
+const COS_UPLOAD_TIMEOUT_MS = 120_000;
+const METADATA_REQUEST_TIMEOUT_MS = 8_000;
+
 function formatFileSize(size: number) {
   if (size < 1024) return `${size} B`;
   if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
@@ -107,6 +110,7 @@ export function UploadPanel({ username, activitySlug }: UploadPanelProps) {
     await new Promise<void>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open(policy.method, policy.uploadUrl, true);
+      xhr.timeout = COS_UPLOAD_TIMEOUT_MS;
 
       Object.entries(policy.headers).forEach(([key, value]) => {
         xhr.setRequestHeader(key, value);
@@ -130,8 +134,31 @@ export function UploadPanel({ username, activitySlug }: UploadPanelProps) {
 
       xhr.onerror = () => reject(new Error("上传网络错误，请检查 COS 跨域和网络配置"));
       xhr.onabort = () => reject(new Error("上传已取消"));
+      xhr.ontimeout = () => reject(new Error("上传超时，请重试或检查网络"));
       xhr.send(file);
     });
+  }
+
+  async function reportPhotoMetadata(payload: {
+    objectKey: string;
+    fileName: string;
+    fileSize: number;
+    contentType: string;
+  }) {
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), METADATA_REQUEST_TIMEOUT_MS);
+    try {
+      await fetch("/api/photos/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      }).catch(() => null);
+    } finally {
+      window.clearTimeout(timer);
+    }
   }
 
   async function uploadFiles(files: File[]) {
@@ -162,23 +189,18 @@ export function UploadPanel({ username, activitySlug }: UploadPanelProps) {
             setItemPatch(itemId, { progress });
           });
 
-          await fetch("/api/photos/create", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              objectKey: policy.objectKey,
-              fileName: file.name,
-              fileSize: file.size,
-              contentType: file.type || "application/octet-stream"
-            })
-          }).catch(() => null);
-
           setItemPatch(itemId, {
             status: "success",
             progress: 100,
             objectKey: policy.objectKey
+          });
+
+          // Do not block UI success state on metadata callback.
+          void reportPhotoMetadata({
+            objectKey: policy.objectKey,
+            fileName: file.name,
+            fileSize: file.size,
+            contentType: file.type || "application/octet-stream"
           });
         } catch (error) {
           const message = error instanceof Error ? error.message : "上传失败";
