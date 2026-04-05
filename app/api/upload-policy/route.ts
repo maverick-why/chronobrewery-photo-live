@@ -1,6 +1,7 @@
 import COS from "cos-nodejs-sdk-v5";
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromCookies } from "@/lib/auth";
+import { readCosConfig } from "@/lib/cos";
 import {
   buildOriginalObjectKey,
   encodeObjectKeyForUrl,
@@ -17,20 +18,6 @@ const SIGN_EXPIRES_SECONDS = 10 * 60;
 const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
 
 export const runtime = "nodejs";
-
-function readRequiredEnv(
-  name:
-    | "TENCENT_COS_BUCKET"
-    | "TENCENT_COS_REGION"
-    | "TENCENT_SECRET_ID"
-    | "TENCENT_SECRET_KEY"
-) {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`${name} is not configured`);
-  }
-  return value;
-}
 
 export async function POST(request: NextRequest) {
   const session = getSessionFromCookies();
@@ -56,20 +43,15 @@ export async function POST(request: NextRequest) {
   const activitySlug = process.env.NEXT_PUBLIC_ACTIVITY_SLUG || "default";
   const objectKey = buildOriginalObjectKey(activitySlug, extension);
 
-  let bucket = "";
-  let region = "";
-  let secretId = "";
-  let secretKey = "";
+  let config;
   try {
-    bucket = readRequiredEnv("TENCENT_COS_BUCKET");
-    region = readRequiredEnv("TENCENT_COS_REGION");
-    secretId = readRequiredEnv("TENCENT_SECRET_ID");
-    secretKey = readRequiredEnv("TENCENT_SECRET_KEY");
+    config = readCosConfig();
   } catch (error) {
     const message = error instanceof Error ? error.message : "server config error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 
+  const { bucket, region, secretId, secretKey } = config;
   const host = `${bucket}.cos.${region}.myqcloud.com`;
   const pathname = `/${objectKey}`;
   const startTime = Math.floor(Date.now() / 1000);

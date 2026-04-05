@@ -18,6 +18,9 @@
 - `name/cos:UploadPart`
 - `name/cos:CompleteMultipartUpload`
 - `name/cos:AbortMultipartUpload`
+- `name/cos:GetBucket`
+- `name/cos:GetObject`
+- `name/cos:HeadObject`
 
 ## 3. COS 跨域（CORS）配置
 

@@ -60,11 +60,12 @@ npm run dev
 - 登录：`http://localhost:3000/admin/login`
 - 后台：`http://localhost:3000/admin`
 
-## 当前实现状态（M2 进行中）
+## 当前实现状态（M3 进行中）
 
-- 已完成：Next.js 14 初始化、登录 session、后台上传页面、COS 上传签名接口
-- 已完成：摄影师后台可批量选择图片并直传 `originals/{activity}/YYYY-MM-DD`
-- 待完成：display/download 自动生成、首页真实列表与下载链路（M3）
+- 已完成：登录 session、后台批量上传、COS 上传签名接口
+- 已完成：首页读取 COS 图片列表并按时间倒序展示，支持下载链接签名
+- 已完成：当 `display` 目录为空时，首页自动回退 `originals` 展示
+- 待完成：upload 后自动生成 `display/download`（数据万象持久化处理）
 
 ## 里程碑（建议）
 
