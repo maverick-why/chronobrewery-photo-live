@@ -19,6 +19,7 @@
 
 - `docs/chronobrewery_photo_requirements_v1.docx`：原始需求文档
 - `docs/chronobrewery_photo_requirements_v1.txt`：纯文本提取版
+- `docs/vercel_setup.md`：Vercel 配置与上线步骤
 
 ## 技术方向（文档定义）
 
@@ -38,6 +39,30 @@
 - `SESSION_SECRET`
 - `NEXT_PUBLIC_SITE_URL`
 - `NEXT_PUBLIC_ACTIVITY_SLUG`
+
+复制模板后填写：
+
+```bash
+cp .env.example .env.local
+```
+
+## 本地启动
+
+```bash
+npm install
+npm run dev
+```
+
+访问：
+
+- 前台：`http://localhost:3000`
+- 登录：`http://localhost:3000/admin/login`
+- 后台：`http://localhost:3000/admin`
+
+## 当前实现状态（M1）
+
+- 已完成：Next.js 14 初始化、基础页面骨架、登录 session、API 路由占位
+- 待完成：腾讯云 COS 临时授权、上传与处理链路、真实图片列表和下载
 
 ## 里程碑（建议）
 
