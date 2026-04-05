@@ -1,0 +1,230 @@
+ChronoBrewery 活动图片直播平台 需求文档 v1
+适用于：photo.dbbrewbeer.com / photo.dbbrewbeer.com/admin
+项目目标
+做一个简洁、稳定、可快速上线的活动图片直播平台，支持摄影师上传、嘉宾浏览与下载。
+核心域名
+前台：photo.dbbrewbeer.com 后台：photo.dbbrewbeer.com/admin
+核心存储
+腾讯云 COS + 数据万象（CI）
+当前版本范围
+单活动、单后台账号、图片浏览与下载、自动生成浏览图和下载图
+
+一句话定义：摄影师上传原图后，系统自动生成“前台浏览图”和“带水印高清下载图”；嘉宾打开首页即可按时间查看全部图片并下载。
+
+1. 项目背景与目标
+背景：现有活动需要一个简洁的图片直播工具，尽快上线，满足摄影师实时上传、嘉宾快速浏览和下载的需求。
+目标：以最小可用范围完成第一版，不做复杂会员体系、不做复杂多角色权限、不做冗余运营功能，重点保证上传链路稳定、浏览快、下载体验清晰。
+前台用户无需登录，打开首页即可看图。
+摄影师通过后台登录后上传原图。
+所有对外可见图片都必须带“时光酿造所”水印。
+前台浏览图与下载图分离：浏览看 display，下载拿 download。
+2. 范围定义
+本期纳入
+本期不纳入
+单活动图片直播 首页图片瀑布/网格展示 后台登录与上传 自动生成浏览图与下载图 时间倒序展示 图片预览与下载
+多活动管理后台 人脸识别找图 访客登录 原图对外公开下载 复杂审批流 多摄影师角色与权限细分
+3. 角色与使用场景
+角色
+入口
+主要行为
+嘉宾
+photo.dbbrewbeer.com
+打开首页查看全部已上传照片；点击照片预览；点击下载按钮下载带水印高清图。
+摄影师
+photo.dbbrewbeer.com/admin
+登录后台；批量上传原图；查看上传结果。
+项目管理员
+Vercel / 腾讯云控制台
+维护环境变量、存储桶配置、域名与上线部署。
+4. 信息架构与页面结构
+前台首页 / ：展示所有图片，默认按上传时间倒序。
+后台登录页 /admin/login ：输入用户名与密码登录。
+摄影师后台 /admin ：上传图片、查看上传状态。
+登录逻辑：访问 /admin 时，若未登录则自动跳转到 /admin/login；已登录则进入后台。
+摄影师登录 → 上传原图 → 系统生成 display / download → 首页自动展示最新图片 → 嘉宾预览 → 嘉宾下载带水印高清图
+5. 核心功能需求
+5.1 首页浏览
+默认展示全部已发布图片。
+按时间倒序，最新上传的照片排在最前。
+支持点击查看大图预览。
+支持点击下载按钮下载带水印高清图。
+首版不要求复杂筛选与搜索。
+5.2 摄影师登录
+首版使用单账号密码登录。
+账号密码通过环境变量管理，不写死在仓库代码中。
+登录后写入 session，未登录无法访问后台。
+5.3 摄影师上传
+支持选择或拖拽上传原图。
+建议支持批量上传。
+上传过程中显示进度与结果。
+原图上传到 originals 目录；上传完成后自动生成 display 与 download。
+5.4 图片处理规则
+图片类型
+用途
+处理要求
+可见性
+originals
+原始存档
+保留摄影师上传的原图，不对外公开。
+私有
+display
+首页浏览
+压缩后用于前台浏览，必须加“时光酿造所”水印。
+前台可访问
+download
+用户下载
+保留高清尺寸，用于下载，必须加“时光酿造所”水印。
+对外下载或临时签名访问
+推荐参数：display 长边 2560px、JPG 质量约 80；download 尽量保持原尺寸，JPG 质量约 90–92。以上均添加右下角半透明“时光酿造所”水印。
+6. 存储结构与命名规范
+目录结构：使用腾讯云 COS，按“资源类型 / 活动标识 / 日期 / 文件名”组织。
+/originals/default/YYYY-MM-DD/{timestamp}-{random}.jpg
+/display/default/YYYY-MM-DD/{timestamp}-{random}.jpg
+/download/default/YYYY-MM-DD/{timestamp}-{random}.jpg
+活动标识首版固定为 default，后续可扩展为具体活动名。
+文件名建议采用“时间戳 + 随机串”，避免重名并利于追踪。
+日期目录在上传时由代码自动生成，无需人工提前创建。
+7. 技术架构
+层级
+组件
+职责
+说明
+前端
+Next.js 14
+前台页面、后台页面、上传界面、预览与下载入口
+使用 App Router
+轻量后端
+Next.js API Routes
+登录、session、上传授权、图片列表、下载地址
+部署在 Vercel
+存储与处理
+腾讯云 COS + 数据万象
+存原图，生成浏览图和下载图，承载图片访问
+当前 Bucket：chronobrewery-photo-1419349000
+部署
+Vercel + GitHub
+代码托管、自动部署、环境变量管理、自定义域名
+仓库建议保持 private
+8. 上传与访问链路
+摄影师访问 /admin，登录后台。
+后台页面向服务端请求上传授权信息。
+浏览器将原图直传到 COS 的 originals 目录。
+在上传时或上传后，由数据万象生成 display 与 download 两份图片。
+前台首页读取 display 列表并按时间倒序展示。
+用户点击下载时，获取 download 图片。
+关键设计原则：摄影师原图不经过 Vercel 中转处理，优先采用浏览器直传 COS，再由云端生成衍生图。这样可以避免大文件上传受限并减轻 Vercel 函数压力。
+9. 腾讯云配置清单
+项目
+当前或建议值
+说明
+Bucket
+chronobrewery-photo-1419349000
+已创建，作为图片存储桶。
+地域
+广州（ap-guangzhou）
+靠近主要国内访问用户。
+访问权限
+私有读写
+originals 保持私有更合适。
+数据万象
+已绑定
+用于水印、压缩和持久化处理。
+目录
+/originals/default /display/default /download/default
+已建立为首版目录结构。
+密钥
+SecretId / SecretKey
+仅放服务端环境变量，不进入前端和代码仓库。
+建议后端通过临时授权或签名方式给前端上传，不将永久密钥暴露到浏览器。
+display 可按业务需要公开读；download 可先公开读，后续也可改成后端签名下载。
+水印文案统一为“时光酿造所”。
+10. GitHub / Vercel / 域名配置
+GitHub 仓库：chronobrewery-photo-live（建议 private，当前已调整为 private）。
+Vercel：单独创建独立项目，连接该 GitHub 仓库。
+正式域名：photo.dbbrewbeer.com。
+后台入口：photo.dbbrewbeer.com/admin。
+若域名 DNS 由 Wix 托管，则通过新增子域名 CNAME 记录指向 Vercel，不影响主域和其他子域。
+11. 环境变量建议
+变量名
+说明
+TENCENT_COS_BUCKET
+COS 存储桶名，例如 chronobrewery-photo-1419349000
+TENCENT_COS_REGION
+COS 地域，例如 ap-guangzhou
+TENCENT_SECRET_ID
+腾讯云服务端密钥 ID，仅服务端使用
+TENCENT_SECRET_KEY
+腾讯云服务端密钥 Key，仅服务端使用
+ADMIN_USERNAME
+后台登录用户名
+ADMIN_PASSWORD
+后台登录密码
+SESSION_SECRET
+session 加密字符串
+NEXT_PUBLIC_SITE_URL
+站点地址，开发时可为 http://localhost:3000
+NEXT_PUBLIC_ACTIVITY_SLUG
+首版固定为 default
+12. 接口清单（建议）
+方法
+路径
+用途
+优先级
+POST
+/api/auth/login
+处理后台登录。
+高
+GET
+/api/auth/session
+查询当前是否已登录。
+高
+POST
+/api/auth/logout
+退出后台登录。
+中
+GET
+/api/upload-policy
+返回上传授权、路径和文件命名信息。
+高
+GET
+/api/photos
+返回首页图片列表。
+高
+POST
+/api/photos/create
+上传成功后记录元数据。
+中
+GET
+/api/download-url
+如 download 不公开时，返回临时下载地址。
+中
+13. 里程碑建议
+阶段
+输出
+说明
+M1
+项目初始化
+完成 GitHub、Vercel、Next.js 初始化、环境变量骨架。
+M2
+后台登录 + 上传
+完成 /admin/login、/admin、上传授权接口与原图上传。
+M3
+图片处理 + 首页
+打通 display / download 生成、首页列表、预览与下载。
+M4
+正式上线
+绑定 photo.dbbrewbeer.com、联调、验收、发布。
+14. 风险与注意事项
+若摄影师原图尺寸或体积过大，需验证数据万象处理链路是否满足实际活动图片体量。
+若 download 目录做公开访问，需接受下载链接可被直接访问的风险；后续可升级为签名下载。
+务必避免将 SecretId / SecretKey 提交到 GitHub；仅放本地 .env 与 Vercel 环境变量。
+首版以单活动、单账号为主，后续若扩展多活动、多摄影师，需要增加元数据表与后台管理能力。
+15. 验收标准
+摄影师可以登录后台并成功上传原图。
+系统可以生成 display 与 download 两份图片。
+前台首页可按时间倒序展示已上传图片。
+点击下载时，用户拿到的是带“时光酿造所”水印的高清下载图。
+所有对外可见图片都带统一水印。
+正式域名 photo.dbbrewbeer.com 可访问，后台入口为 /admin。
+
+—— 文档结束 ——
