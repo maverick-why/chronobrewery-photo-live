@@ -20,6 +20,7 @@
 - `docs/chronobrewery_photo_requirements_v1.docx`：原始需求文档
 - `docs/chronobrewery_photo_requirements_v1.txt`：纯文本提取版
 - `docs/vercel_setup.md`：Vercel 配置与上线步骤
+- `docs/cos_setup.md`：腾讯云 COS 上传与跨域配置
 
 ## 技术方向（文档定义）
 
@@ -59,10 +60,11 @@ npm run dev
 - 登录：`http://localhost:3000/admin/login`
 - 后台：`http://localhost:3000/admin`
 
-## 当前实现状态（M1）
+## 当前实现状态（M2 进行中）
 
-- 已完成：Next.js 14 初始化、基础页面骨架、登录 session、API 路由占位
-- 待完成：腾讯云 COS 临时授权、上传与处理链路、真实图片列表和下载
+- 已完成：Next.js 14 初始化、登录 session、后台上传页面、COS 上传签名接口
+- 已完成：摄影师后台可批量选择图片并直传 `originals/{activity}/YYYY-MM-DD`
+- 待完成：display/download 自动生成、首页真实列表与下载链路（M3）
 
 ## 里程碑（建议）
 

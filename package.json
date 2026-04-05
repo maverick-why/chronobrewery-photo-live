@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "cos-nodejs-sdk-v5": "^2.15.4",
     "next": "14.2.33",
     "react": "18.3.1",
     "react-dom": "18.3.1"

@@ -1,17 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromCookies } from "@/lib/auth";
 
-export async function POST(_request: NextRequest) {
+type CreatePhotoPayload = {
+  objectKey?: string;
+  fileName?: string;
+  fileSize?: number;
+  contentType?: string;
+};
+
+export async function POST(request: NextRequest) {
   const session = getSessionFromCookies();
   if (!session) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
+  const body = (await request.json().catch(() => null)) as CreatePhotoPayload | null;
+  if (!body?.objectKey) {
+    return NextResponse.json({ error: "objectKey is required" }, { status: 400 });
+  }
+
   return NextResponse.json(
     {
-      error: "not implemented",
-      message: "M2/M3 接入元数据持久化后实现。"
+      ok: true,
+      message: "metadata accepted (no persistence in M2)",
+      createdBy: session.username,
+      photo: {
+        objectKey: body.objectKey,
+        fileName: body.fileName || "",
+        fileSize: body.fileSize || 0,
+        contentType: body.contentType || ""
+      }
     },
-    { status: 501 }
+    { status: 202 }
   );
 }

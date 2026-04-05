@@ -36,7 +36,7 @@
 1. 在 Vercel 项目 `Settings` -> `Domains` 中添加 `photo.dbbrewbeer.com`。
 2. 若 DNS 在 Wix 托管，新增 CNAME：
    - 主机记录：`photo`
-   - 记录值：`cname.vercel-dns.com`
+   - 记录值：以 Vercel 域名页面提示值为准（可能是 `xxx.vercel-dns-017.com`）
 3. 等待证书签发完成后，访问：
    - 前台：`https://photo.dbbrewbeer.com`
    - 后台：`https://photo.dbbrewbeer.com/admin/login`
