@@ -11,11 +11,13 @@ const SIGN_EXPIRES_SECONDS = 60 * 10;
 export async function GET(request: NextRequest) {
   const key = request.nextUrl.searchParams.get("key");
   const fallbackKey = request.nextUrl.searchParams.get("fallbackKey");
+
   if (!key) {
     return NextResponse.json({ error: "key is required" }, { status: 400 });
   }
 
   const activitySlug = process.env.NEXT_PUBLIC_ACTIVITY_SLUG || "default";
+
   let config;
   try {
     config = readCosConfig();
@@ -25,6 +27,7 @@ export async function GET(request: NextRequest) {
   }
 
   const cos = createCosClient(config);
+
   const candidates = [
     ...buildDownloadKeyCandidates(key, activitySlug),
     ...(fallbackKey ? buildDownloadKeyCandidates(fallbackKey, activitySlug) : [])
@@ -33,22 +36,16 @@ export async function GET(request: NextRequest) {
 
   for (const candidate of uniqueCandidates) {
     const exists = await checkObjectExists(cos, config, candidate);
-    if (!exists) {
-      continue;
-    }
+    if (!exists) continue;
 
-    const signedUrl = createSignedObjectUrl(
-      cos,
-      config,
-      candidate,
-      SIGN_EXPIRES_SECONDS,
-      buildDownloadWatermarkRule()
-    );
+    // 签名不带水印参数，再拼接水印 rule
+    const signedUrl = createSignedObjectUrl(cos, config, candidate, SIGN_EXPIRES_SECONDS);
+    const url = `${signedUrl}&${buildDownloadWatermarkRule()}`;
 
     return NextResponse.json({
       ok: true,
       key: candidate,
-      url: signedUrl,
+      url,
       expiresIn: SIGN_EXPIRES_SECONDS
     });
   }
