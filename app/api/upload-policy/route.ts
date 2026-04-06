@@ -3,10 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromCookies } from "@/lib/auth";
 import { createCosClient, readCosConfig } from "@/lib/cos";
 import { mapOriginalToDisplayKey, mapOriginalToDownloadKey } from "@/lib/photo-keys";
-import {
-  buildDisplayWatermarkRule,
-  buildDownloadWatermarkRule
-} from "@/lib/watermark";
+import { buildDisplayPicRules } from "@/lib/watermark";
 import {
   buildOriginalObjectKey,
   encodeObjectKeyForUrl,
@@ -23,20 +20,9 @@ const SIGN_EXPIRES_SECONDS = 10 * 60;
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;
 
 function buildPicOperations(originalKey: string, activitySlug: string, bucket: string, region: string) {
-  const displayKey = mapOriginalToDisplayKey(originalKey, activitySlug);
-  const downloadKey = mapOriginalToDownloadKey(originalKey, activitySlug);
   return JSON.stringify({
     is_pic_info: 1,
-    rules: [
-      {
-        fileid: `/${displayKey}`,
-        rule: buildDisplayWatermarkRule(bucket, region)
-      },
-      {
-        fileid: `/${downloadKey}`,
-        rule: buildDownloadWatermarkRule(bucket, region)
-      }
-    ]
+    rules: buildDisplayPicRules(bucket, region, originalKey, activitySlug)
   });
 }
 
