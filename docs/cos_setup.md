@@ -51,6 +51,6 @@
 
 - `403 SignatureDoesNotMatch`：检查 `TENCENT_SECRET_ID/KEY`、Bucket、Region 是否一致。
 - 上传成功但未生成 `display/download`：确认 Bucket 已开通并绑定数据万象（CI）。
-- 水印不显示：优先检查查询参数是否为 `...|watermark/2/text/...` 语法，并确认 `WATERMARK_TEXT` 已在 Vercel 配置。
+- 水印不显示：确认 `WATERMARK_IMAGE_KEY` 指向存在对象（例如 `watermark/logo.png`），且该对象可通过 `http://{bucket}.cos.{region}.myqcloud.com/{key}` 访问。
 - 前端显示上传网络错误：优先检查 COS CORS 规则是否生效。
 - `ADMIN_USERNAME/ADMIN_PASSWORD is not configured`：Vercel 环境变量未绑定 Production 或未 Redeploy。

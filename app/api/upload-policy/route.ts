@@ -1,7 +1,7 @@
 import COS from "cos-nodejs-sdk-v5";
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromCookies } from "@/lib/auth";
-import { createCosClient, readCosConfig } from "@/lib/cos";
+import { readCosConfig } from "@/lib/cos";
 import { mapOriginalToDisplayKey, mapOriginalToDownloadKey } from "@/lib/photo-keys";
 import { buildDisplayPicRules } from "@/lib/watermark";
 import {

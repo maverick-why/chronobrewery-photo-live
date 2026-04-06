@@ -76,7 +76,10 @@ function buildPhoto(
     const downloadKey = mapDisplayToDownloadKey(displayKey, activitySlug);
     const originalKey = mapDisplayToOriginalKey(displayKey, activitySlug);
     const displayUrl = createSignedObjectUrl(
-      cos, config, displayKey, SIGN_EXPIRES_SECONDS,
+      cos,
+      config,
+      displayKey,
+      SIGN_EXPIRES_SECONDS,
       buildDisplayWatermarkRule(config.bucket, config.region)
     );
     return { key, displayKey, downloadKey, originalKey, displayUrl, previewUrl: displayUrl, source, size, uploadedAt };
@@ -86,10 +89,23 @@ function buildPhoto(
   const displayKey = mapOriginalToDisplayKey(originalKey, activitySlug);
   const downloadKey = mapOriginalToDownloadKey(originalKey, activitySlug);
   const originalUrlWithWatermark = createSignedObjectUrl(
-    cos, config, originalKey, SIGN_EXPIRES_SECONDS,
+    cos,
+    config,
+    originalKey,
+    SIGN_EXPIRES_SECONDS,
     buildDisplayWatermarkRule(config.bucket, config.region)
   );
-  return { key, displayKey, downloadKey, originalKey, displayUrl: originalUrlWithWatermark, previewUrl: originalUrlWithWatermark, source, size, uploadedAt };
+  return {
+    key,
+    displayKey,
+    downloadKey,
+    originalKey,
+    displayUrl: originalUrlWithWatermark,
+    previewUrl: originalUrlWithWatermark,
+    source,
+    size,
+    uploadedAt
+  };
 }
 
 export async function GET(request: Request) {
