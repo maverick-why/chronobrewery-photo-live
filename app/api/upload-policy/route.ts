@@ -20,9 +20,11 @@ const SIGN_EXPIRES_SECONDS = 10 * 60;
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;
 
 function buildPicOperations(originalKey: string, activitySlug: string, bucket: string, region: string) {
+  const displayKey = mapOriginalToDisplayKey(originalKey, activitySlug);
+  const downloadKey = mapOriginalToDownloadKey(originalKey, activitySlug);
   return JSON.stringify({
     is_pic_info: 1,
-    rules: buildDisplayPicRules(bucket, region, originalKey, activitySlug)
+    rules: buildDisplayPicRules(bucket, region, displayKey, downloadKey)
   });
 }
 
