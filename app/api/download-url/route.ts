@@ -39,7 +39,8 @@ export async function GET(request: NextRequest) {
     if (!exists) continue;
 
     const url = createSignedObjectUrl(
-      cos, config, candidate, SIGN_EXPIRES_SECONDS, buildDownloadWatermarkRule()
+      cos, config, candidate, SIGN_EXPIRES_SECONDS,
+      buildDownloadWatermarkRule(config.bucket, config.region)
     );
 
     return NextResponse.json({ ok: true, key: candidate, url, expiresIn: SIGN_EXPIRES_SECONDS });
