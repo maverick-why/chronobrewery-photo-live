@@ -9,6 +9,7 @@ import {
 import { buildDisplayWatermarkRule, createSignedWatermarkImageUrl } from "@/lib/watermark";
 
 const SIGN_EXPIRES_SECONDS = 60 * 30;
+const LIST_SCAN_MAX_KEYS = 1000;
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -145,7 +146,7 @@ export async function GET(request: Request) {
         bucket: config.bucket,
         region: config.region,
         prefix: displayPrefix,
-        maxKeys: limit
+        maxKeys: LIST_SCAN_MAX_KEYS
       },
       cos
     );
@@ -158,7 +159,7 @@ export async function GET(request: Request) {
           bucket: config.bucket,
           region: config.region,
           prefix: originalsPrefix,
-          maxKeys: limit
+          maxKeys: LIST_SCAN_MAX_KEYS
         },
         cos
       );
