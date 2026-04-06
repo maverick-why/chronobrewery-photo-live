@@ -7,7 +7,7 @@
 - Bucket：`chronobrewery-photo-1419349000`
 - Region：`ap-guangzhou`
 - 上传目录：`originals/{activitySlug}/YYYY-MM-DD/...`
-- 水印图建议路径：`watermark/logo.png`
+- 水印图建议路径：`watermark/logo.png`（当前代码会自动生成签名 URL，可保持私有）
 
 ## 2. 账号密钥权限建议
 

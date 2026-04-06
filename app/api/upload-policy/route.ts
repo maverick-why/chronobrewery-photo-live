@@ -1,9 +1,13 @@
 import COS from "cos-nodejs-sdk-v5";
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromCookies } from "@/lib/auth";
-import { readCosConfig } from "@/lib/cos";
+import { createCosClient, readCosConfig } from "@/lib/cos";
 import { mapOriginalToDisplayKey, mapOriginalToDownloadKey } from "@/lib/photo-keys";
-import { buildDisplayWatermarkRule, buildDownloadWatermarkRule } from "@/lib/watermark";
+import {
+  buildDisplayWatermarkRule,
+  buildDownloadWatermarkRule,
+  createSignedWatermarkImageUrl
+} from "@/lib/watermark";
 import {
   buildOriginalObjectKey,
   encodeObjectKeyForUrl,
@@ -19,7 +23,7 @@ type UploadPolicyPayload = {
 const SIGN_EXPIRES_SECONDS = 10 * 60;
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;
 
-function buildPicOperations(originalKey: string, activitySlug: string) {
+function buildPicOperations(originalKey: string, activitySlug: string, watermarkImageUrl: string) {
   const displayKey = mapOriginalToDisplayKey(originalKey, activitySlug);
   const downloadKey = mapOriginalToDownloadKey(originalKey, activitySlug);
 
@@ -28,11 +32,11 @@ function buildPicOperations(originalKey: string, activitySlug: string) {
     rules: [
       {
         fileid: displayKey,
-        rule: buildDisplayWatermarkRule()
+        rule: buildDisplayWatermarkRule(watermarkImageUrl)
       },
       {
         fileid: downloadKey,
-        rule: buildDownloadWatermarkRule()
+        rule: buildDownloadWatermarkRule(watermarkImageUrl)
       }
     ]
   });
@@ -63,7 +67,6 @@ export async function POST(request: NextRequest) {
   const extension = resolveImageExtension(body.filename, body.contentType);
   const activitySlug = process.env.NEXT_PUBLIC_ACTIVITY_SLUG || "default";
   const objectKey = buildOriginalObjectKey(activitySlug, extension);
-  const picOperations = buildPicOperations(objectKey, activitySlug);
 
   let config;
   try {
@@ -72,6 +75,9 @@ export async function POST(request: NextRequest) {
     const message = error instanceof Error ? error.message : "server config error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
+
+  const watermarkImageUrl = createSignedWatermarkImageUrl(createCosClient(config), config);
+  const picOperations = buildPicOperations(objectKey, activitySlug, watermarkImageUrl);
 
   const { bucket, region, secretId, secretKey } = config;
   const host = `${bucket}.cos.${region}.myqcloud.com`;

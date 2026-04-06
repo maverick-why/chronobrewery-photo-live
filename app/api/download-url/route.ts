@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkObjectExists, createCosClient, createSignedObjectUrl, readCosConfig } from "@/lib/cos";
 import { buildDownloadKeyCandidates } from "@/lib/photo-keys";
-import { buildDownloadWatermarkRule } from "@/lib/watermark";
+import { buildDownloadWatermarkRule, createSignedWatermarkImageUrl } from "@/lib/watermark";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
   }
 
   const cos = createCosClient(config);
+  const watermarkImageUrl = createSignedWatermarkImageUrl(cos, config);
   const candidates = [
     ...buildDownloadKeyCandidates(key, activitySlug),
     ...(fallbackKey ? buildDownloadKeyCandidates(fallbackKey, activitySlug) : [])
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest) {
       config,
       candidate,
       SIGN_EXPIRES_SECONDS,
-      isOriginal ? buildDownloadWatermarkRule() : undefined
+      isOriginal ? buildDownloadWatermarkRule(watermarkImageUrl) : undefined
     );
 
     return NextResponse.json({

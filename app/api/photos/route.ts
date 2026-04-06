@@ -6,7 +6,7 @@ import {
   mapOriginalToDisplayKey,
   mapOriginalToDownloadKey
 } from "@/lib/photo-keys";
-import { buildDisplayWatermarkRule } from "@/lib/watermark";
+import { buildDisplayWatermarkRule, createSignedWatermarkImageUrl } from "@/lib/watermark";
 
 const SIGN_EXPIRES_SECONDS = 60 * 30;
 
@@ -66,7 +66,8 @@ function buildPhoto(
   size: number,
   activitySlug: string,
   cos: ReturnType<typeof createCosClient>,
-  config: ReturnType<typeof readCosConfig>
+  config: ReturnType<typeof readCosConfig>,
+  watermarkImageUrl: string
 ): ListedPhoto {
   if (source === "display") {
     const displayKey = key;
@@ -94,7 +95,7 @@ function buildPhoto(
     config,
     originalKey,
     SIGN_EXPIRES_SECONDS,
-    buildDisplayWatermarkRule()
+    buildDisplayWatermarkRule(watermarkImageUrl)
   );
   return {
     key,
@@ -125,6 +126,7 @@ export async function GET(request: Request) {
   const cos = createCosClient(config);
   const displayPrefix = `display/${activitySlug}/`;
   const originalsPrefix = `originals/${activitySlug}/`;
+  const watermarkImageUrl = createSignedWatermarkImageUrl(cos, config);
 
   try {
     let source: SourceType = "display";
@@ -160,7 +162,9 @@ export async function GET(request: Request) {
       }))
       .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
       .slice(0, limit)
-      .map((item) => buildPhoto(source, item.key, item.uploadedAt, item.size, activitySlug, cos, config));
+      .map((item) =>
+        buildPhoto(source, item.key, item.uploadedAt, item.size, activitySlug, cos, config, watermarkImageUrl)
+      );
 
     return NextResponse.json({
       photos,
