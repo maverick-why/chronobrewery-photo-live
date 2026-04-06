@@ -42,12 +42,7 @@ function normalizeLimit(raw: string | null) {
 }
 
 async function listObjectsForPrefix(
-  params: {
-    bucket: string;
-    region: string;
-    prefix: string;
-    maxKeys: number;
-  },
+  params: { bucket: string; region: string; prefix: string; maxKeys: number },
   cos: ReturnType<typeof createCosClient>
 ) {
   const data = await cos.getBucket({
@@ -56,7 +51,6 @@ async function listObjectsForPrefix(
     Prefix: params.prefix,
     MaxKeys: params.maxKeys
   });
-
   return (data.Contents || []).filter((item) => item.Key && !item.Key.endsWith("/"));
 }
 
@@ -82,27 +76,20 @@ function buildPhoto(
     const downloadKey = mapDisplayToDownloadKey(displayKey, activitySlug);
     const originalKey = mapDisplayToOriginalKey(displayKey, activitySlug);
     const displayUrl = createSignedObjectUrl(
-      cos, config, displayKey, SIGN_EXPIRES_SECONDS, buildDisplayWatermarkRule()
+      cos, config, displayKey, SIGN_EXPIRES_SECONDS,
+      buildDisplayWatermarkRule(config.bucket, config.region)
     );
-    return {
-      key, displayKey, downloadKey, originalKey,
-      displayUrl, previewUrl: displayUrl,
-      source, size, uploadedAt
-    };
+    return { key, displayKey, downloadKey, originalKey, displayUrl, previewUrl: displayUrl, source, size, uploadedAt };
   }
 
   const originalKey = key;
   const displayKey = mapOriginalToDisplayKey(originalKey, activitySlug);
   const downloadKey = mapOriginalToDownloadKey(originalKey, activitySlug);
   const originalUrlWithWatermark = createSignedObjectUrl(
-    cos, config, originalKey, SIGN_EXPIRES_SECONDS, buildDisplayWatermarkRule()
+    cos, config, originalKey, SIGN_EXPIRES_SECONDS,
+    buildDisplayWatermarkRule(config.bucket, config.region)
   );
-  return {
-    key, displayKey, downloadKey, originalKey,
-    displayUrl: originalUrlWithWatermark,
-    previewUrl: originalUrlWithWatermark,
-    source, size, uploadedAt
-  };
+  return { key, displayKey, downloadKey, originalKey, displayUrl: originalUrlWithWatermark, previewUrl: originalUrlWithWatermark, source, size, uploadedAt };
 }
 
 export async function GET(request: Request) {
