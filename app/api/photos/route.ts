@@ -83,13 +83,9 @@ function buildPhoto(
     const displayKey = key;
     const downloadKey = mapDisplayToDownloadKey(displayKey, activitySlug);
     const originalKey = mapDisplayToOriginalKey(displayKey, activitySlug);
-    const displayUrl = createSignedObjectUrl(
-      cos,
-      config,
-      displayKey,
-      SIGN_EXPIRES_SECONDS,
-      buildDisplayWatermarkRule()
-    );
+    // 签名 URL 不带水印参数，再拼接水印 rule
+    const signedUrl = createSignedObjectUrl(cos, config, displayKey, SIGN_EXPIRES_SECONDS);
+    const displayUrl = `${signedUrl}&${buildDisplayWatermarkRule()}`;
     return {
       key,
       displayKey,
@@ -103,16 +99,12 @@ function buildPhoto(
     };
   }
 
+  // originals fallback
   const originalKey = key;
   const displayKey = mapOriginalToDisplayKey(originalKey, activitySlug);
   const downloadKey = mapOriginalToDownloadKey(originalKey, activitySlug);
-  const originalUrlWithWatermark = createSignedObjectUrl(
-    cos,
-    config,
-    originalKey,
-    SIGN_EXPIRES_SECONDS,
-    buildDisplayWatermarkRule()
-  );
+  const signedUrl = createSignedObjectUrl(cos, config, originalKey, SIGN_EXPIRES_SECONDS);
+  const originalUrlWithWatermark = `${signedUrl}&${buildDisplayWatermarkRule()}`;
   return {
     key,
     displayKey,
@@ -155,7 +147,6 @@ export async function GET(request: Request) {
       cos
     );
 
-    // If CI derivations are not ready, fallback to originals so homepage still works.
     if (objects.length === 0) {
       source = "originals";
       objects = await listObjectsForPrefix(
