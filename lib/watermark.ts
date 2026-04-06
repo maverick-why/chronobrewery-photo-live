@@ -7,18 +7,20 @@ function toUrlSafeBase64(value: string) {
     .replace(/\//g, "_");
 }
 
-function getWatermarkImageUrl(bucket: string, region: string) {
+function getWatermarkImageBase64(bucket: string, region: string) {
   const imageUrl = `https://${bucket}.cos.${region}.myqcloud.com/${DEFAULT_WATERMARK_IMAGE_KEY}`;
   return toUrlSafeBase64(imageUrl);
 }
 
-// 用于 Pic-Operations 上传时生成 display 文件（缩图 + 单独水印两条规则）
-export function buildDisplayPicRules(bucket: string, region: string, originalKey: string, activitySlug: string) {
-  const { mapOriginalToDisplayKey, mapOriginalToDownloadKey } = require("@/lib/photo-keys");
-  const displayKey = mapOriginalToDisplayKey(originalKey, activitySlug);
-  const downloadKey = mapOriginalToDownloadKey(originalKey, activitySlug);
-  const imageBase64 = getWatermarkImageUrl(bucket, region);
+function buildImageWatermarkSegment(bucket: string, region: string, dissolve: number, dx: number, dy: number) {
+  const imageBase64 = getWatermarkImageBase64(bucket, region);
+  return `watermark/1/image/${imageBase64}/dissolve/${dissolve}/gravity/SouthEast/dx/${dx}/dy/${dy}/blogo/1`;
+}
 
+// 用于 Pic-Operations 上传时生成衍生图（返回 rules 数组）
+export function buildDisplayPicRules(bucket: string, region: string, displayKey: string, downloadKey: string) {
+  const watermarkSegment = buildImageWatermarkSegment(bucket, region, 90, 30, 30);
+  const downloadWatermarkSegment = buildImageWatermarkSegment(bucket, region, 90, 36, 36);
   return [
     {
       fileid: `/${displayKey}`,
@@ -26,22 +28,20 @@ export function buildDisplayPicRules(bucket: string, region: string, originalKey
     },
     {
       fileid: `/${displayKey}`,
-      rule: `watermark/1/image/${imageBase64}/dissolve/90/gravity/SouthEast/dx/30/dy/30/blogo/1`
+      rule: watermarkSegment
     },
     {
       fileid: `/${downloadKey}`,
-      rule: `watermark/1/image/${imageBase64}/dissolve/90/gravity/SouthEast/dx/36/dy/36/blogo/1`
+      rule: downloadWatermarkSegment
     }
   ];
 }
 
-// 用于签名 URL 实时处理（预览/下载时叠加水印）
+// 用于签名 URL 实时处理
 export function buildDisplayWatermarkRule(bucket: string, region: string) {
-  const imageBase64 = getWatermarkImageUrl(bucket, region);
-  return `watermark/1/image/${imageBase64}/dissolve/90/gravity/SouthEast/dx/30/dy/30/blogo/1`;
+  return buildImageWatermarkSegment(bucket, region, 90, 30, 30);
 }
 
 export function buildDownloadWatermarkRule(bucket: string, region: string) {
-  const imageBase64 = getWatermarkImageUrl(bucket, region);
-  return `watermark/1/image/${imageBase64}/dissolve/90/gravity/SouthEast/dx/36/dy/36/blogo/1`;
+  return buildImageWatermarkSegment(bucket, region, 90, 36, 36);
 }
