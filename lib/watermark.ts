@@ -28,9 +28,16 @@ function createPublicWatermarkImageUrl(bucket: string, region: string) {
   return `http://${bucket}.cos.${region}.myqcloud.com/${key}`;
 }
 
-function buildImageWatermarkSegment(bucket: string, region: string, dissolve: number, dx: number, dy: number) {
+function buildImageWatermarkSegment(
+  bucket: string,
+  region: string,
+  dissolve: number,
+  ws: number,
+  dx: number,
+  dy: number
+) {
   const imageBase64 = toUrlSafeBase64(createPublicWatermarkImageUrl(bucket, region));
-  return `watermark/1/image/${imageBase64}/dissolve/${dissolve}/gravity/SouthEast/dx/${dx}/dy/${dy}`;
+  return `watermark/1/image/${imageBase64}/ws/${ws}/dissolve/${dissolve}/gravity/SouthEast/dx/${dx}/dy/${dy}`;
 }
 
 function buildTextWatermarkSegment(fontSize: number, dissolve: number, dx: number, dy: number) {
@@ -49,7 +56,7 @@ function buildTextWatermarkSegment(fontSize: number, dissolve: number, dx: numbe
 
 function buildDisplayWatermarkChain(bucket: string, region: string) {
   const segments = [
-    buildImageWatermarkSegment(bucket, region, 86, 28, 28),
+    buildImageWatermarkSegment(bucket, region, 88, 0.18, 10, 10),
     buildTextWatermarkSegment(42, 62, 28, 28)
   ].filter(Boolean);
   return segments.join("|");
@@ -57,7 +64,7 @@ function buildDisplayWatermarkChain(bucket: string, region: string) {
 
 function buildDownloadWatermarkChain(bucket: string, region: string) {
   const segments = [
-    buildImageWatermarkSegment(bucket, region, 90, 36, 36),
+    buildImageWatermarkSegment(bucket, region, 90, 0.18, 12, 12),
     buildTextWatermarkSegment(48, 66, 36, 36)
   ].filter(Boolean);
   return segments.join("|");
