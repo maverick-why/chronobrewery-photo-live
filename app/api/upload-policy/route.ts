@@ -31,11 +31,12 @@ function buildPicOperations(originalKey: string, activitySlug: string, watermark
     is_pic_info: 1,
     rules: [
       {
-        fileid: displayKey,
+        // Use absolute key so COS CI writes to bucket root instead of nesting under current original object path.
+        fileid: `/${displayKey}`,
         rule: buildDisplayWatermarkRule(watermarkImageUrl)
       },
       {
-        fileid: downloadKey,
+        fileid: `/${downloadKey}`,
         rule: buildDownloadWatermarkRule(watermarkImageUrl)
       }
     ]

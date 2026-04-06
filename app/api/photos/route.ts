@@ -59,6 +59,16 @@ async function listObjectsForPrefix(
   return (data.Contents || []).filter((item) => item.Key && !item.Key.endsWith("/"));
 }
 
+function isDirectOriginalObjectKey(key: string, activitySlug: string) {
+  const prefix = `originals/${activitySlug}/`;
+  if (!key.startsWith(prefix)) {
+    return false;
+  }
+  const suffix = key.slice(prefix.length);
+  const segments = suffix.split("/");
+  return segments.length === 2 && Boolean(segments[0]) && Boolean(segments[1]);
+}
+
 function buildPhoto(
   source: SourceType,
   key: string,
@@ -152,6 +162,7 @@ export async function GET(request: Request) {
         },
         cos
       );
+      objects = objects.filter((item) => isDirectOriginalObjectKey(item.Key, activitySlug));
     }
 
     const photos = objects
