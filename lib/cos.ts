@@ -33,18 +33,18 @@ export function createSignedObjectUrl(
   expires = 10 * 60,
   ciParams?: string
 ): string {
-  // 只对对象本身签名，不带任何 CI 参数
+  // 签名时完全不带 CI 参数，Query 传空字符串
   const signedUrl = cos.getObjectUrl({
     Bucket: config.bucket,
     Region: config.region,
     Key: key,
     Sign: true,
     Expires: expires,
-    Method: "GET"
+    Method: "GET",
+    QueryString: ""
   });
 
-  // CI 处理参数直接拼在签名 URL 后面，不纳入签名
-  // COS 数据万象对已签名对象的 CI 参数不需要额外签名
+  // CI 参数拼在签名后，COS 不校验这部分
   return ciParams ? `${signedUrl}&${ciParams}` : signedUrl;
 }
 
