@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkObjectExists, createCosClient, createSignedObjectUrl, readCosConfig } from "@/lib/cos";
 import { buildDownloadKeyCandidates } from "@/lib/photo-keys";
+import { buildDownloadWatermarkRule } from "@/lib/watermark";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -36,10 +37,19 @@ export async function GET(request: NextRequest) {
       continue;
     }
 
+    const isOriginal = candidate.startsWith(`originals/${activitySlug}/`);
+    const signedUrl = createSignedObjectUrl(
+      cos,
+      config,
+      candidate,
+      SIGN_EXPIRES_SECONDS,
+      isOriginal ? buildDownloadWatermarkRule() : undefined
+    );
+
     return NextResponse.json({
       ok: true,
       key: candidate,
-      url: createSignedObjectUrl(cos, config, candidate, SIGN_EXPIRES_SECONDS),
+      url: signedUrl,
       expiresIn: SIGN_EXPIRES_SECONDS
     });
   }

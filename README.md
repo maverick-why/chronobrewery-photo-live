@@ -67,6 +67,7 @@ npm run dev
 - 已完成：首页读取 COS 图片列表并按时间倒序展示，支持下载链接签名
 - 已完成：当 `display` 目录为空时，首页自动回退 `originals` 展示
 - 已完成：上传 `originals` 时通过 `Pic-Operations` 自动生成带水印 `display/download`
+- 已完成：若衍生图尚未落盘，预览/下载会对 `originals` 实时加水印后签名返回
 
 ## 里程碑（建议）
 

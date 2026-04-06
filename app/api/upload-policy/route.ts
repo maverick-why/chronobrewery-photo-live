@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromCookies } from "@/lib/auth";
 import { readCosConfig } from "@/lib/cos";
 import { mapOriginalToDisplayKey, mapOriginalToDownloadKey } from "@/lib/photo-keys";
+import { buildDisplayWatermarkRule, buildDownloadWatermarkRule } from "@/lib/watermark";
 import {
   buildOriginalObjectKey,
   encodeObjectKeyForUrl,
@@ -17,36 +18,21 @@ type UploadPolicyPayload = {
 
 const SIGN_EXPIRES_SECONDS = 10 * 60;
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;
-const DEFAULT_WATERMARK_IMAGE_KEY = "watermark/logo.png";
-
-function toUrlSafeBase64(value: string) {
-  return Buffer.from(value, "utf8").toString("base64").replace(/\+/g, "-").replace(/\//g, "_");
-}
 
 function buildPicOperations(originalKey: string, activitySlug: string) {
-  const watermarkImageKey = process.env.WATERMARK_IMAGE_KEY || DEFAULT_WATERMARK_IMAGE_KEY;
-  const imageKeyBase64 = toUrlSafeBase64(watermarkImageKey);
   const displayKey = mapOriginalToDisplayKey(originalKey, activitySlug);
   const downloadKey = mapOriginalToDownloadKey(originalKey, activitySlug);
-
-  const displayRule =
-    `imageMogr2/thumbnail/2560x/quality/80/format/jpg` +
-    `/watermark/1/image_key/${imageKeyBase64}/dissolve/75/gravity/SouthEast/dx/24/dy/24`;
-
-  const downloadRule =
-    `imageMogr2/quality/92/format/jpg` +
-    `/watermark/1/image_key/${imageKeyBase64}/dissolve/78/gravity/SouthEast/dx/28/dy/28`;
 
   return JSON.stringify({
     is_pic_info: 1,
     rules: [
       {
         fileid: displayKey,
-        rule: displayRule
+        rule: buildDisplayWatermarkRule()
       },
       {
         fileid: downloadKey,
-        rule: downloadRule
+        rule: buildDownloadWatermarkRule()
       }
     ]
   });

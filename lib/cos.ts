@@ -40,7 +40,8 @@ export function createSignedObjectUrl(
   cos: COS,
   config: CosConfig,
   key: string,
-  expires = 10 * 60
+  expires = 10 * 60,
+  queryString?: string
 ) {
   return cos.getObjectUrl({
     Bucket: config.bucket,
@@ -48,7 +49,8 @@ export function createSignedObjectUrl(
     Key: key,
     Sign: true,
     Expires: expires,
-    Method: "GET"
+    Method: "GET",
+    QueryString: queryString
   });
 }
 

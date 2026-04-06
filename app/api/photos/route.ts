@@ -6,6 +6,7 @@ import {
   mapOriginalToDisplayKey,
   mapOriginalToDownloadKey
 } from "@/lib/photo-keys";
+import { buildDisplayWatermarkRule } from "@/lib/watermark";
 
 const SIGN_EXPIRES_SECONDS = 60 * 30;
 
@@ -88,14 +89,20 @@ function buildPhoto(
   const originalKey = key;
   const displayKey = mapOriginalToDisplayKey(originalKey, activitySlug);
   const downloadKey = mapOriginalToDownloadKey(originalKey, activitySlug);
-  const originalUrl = createSignedObjectUrl(cos, config, originalKey, SIGN_EXPIRES_SECONDS);
+  const originalUrlWithWatermark = createSignedObjectUrl(
+    cos,
+    config,
+    originalKey,
+    SIGN_EXPIRES_SECONDS,
+    buildDisplayWatermarkRule()
+  );
   return {
     key,
     displayKey,
     downloadKey,
     originalKey,
-    displayUrl: originalUrl,
-    previewUrl: originalUrl,
+    displayUrl: originalUrlWithWatermark,
+    previewUrl: originalUrlWithWatermark,
     source,
     size,
     uploadedAt
