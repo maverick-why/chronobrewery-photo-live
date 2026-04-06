@@ -33,37 +33,19 @@ export function createSignedObjectUrl(
   expires = 10 * 60,
   ciParams?: string
 ): string {
-  const { bucket, region, secretId, secretKey } = config;
-  const host = `${bucket}.cos.${region}.myqcloud.com`;
-  const pathname = `/${key}`;
-  const startTime = Math.floor(Date.now() / 1000);
-  const endTime = startTime + expires;
-
-  // 把 ciParams 解析成 key-value 对象纳入签名
-  const queryObj: Record<string, string> = {};
-  if (ciParams) {
-    ciParams.split("&").forEach((pair) => {
-      const idx = pair.indexOf("=");
-      if (idx === -1) {
-        queryObj[pair] = "";
-      } else {
-        queryObj[pair.slice(0, idx)] = pair.slice(idx + 1);
-      }
-    });
-  }
-
-  const authorization = COS.getAuthorization({
-    SecretId: secretId,
-    SecretKey: secretKey,
-    Method: "get",
-    Pathname: pathname,
-    Query: queryObj,
-    Headers: { host },
-    KeyTime: `${startTime};${endTime}`
+  // 只对对象本身签名，不带任何 CI 参数
+  const signedUrl = cos.getObjectUrl({
+    Bucket: config.bucket,
+    Region: config.region,
+    Key: key,
+    Sign: true,
+    Expires: expires,
+    Method: "GET"
   });
 
-  const base = `https://${host}${pathname}?${authorization}`;
-  return ciParams ? `${base}&${ciParams}` : base;
+  // CI 处理参数直接拼在签名 URL 后面，不纳入签名
+  // COS 数据万象对已签名对象的 CI 参数不需要额外签名
+  return ciParams ? `${signedUrl}&${ciParams}` : signedUrl;
 }
 
 export async function checkObjectExists(cos: COS, config: CosConfig, key: string) {
