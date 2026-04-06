@@ -31,17 +31,39 @@ export function createSignedObjectUrl(
   config: CosConfig,
   key: string,
   expires = 10 * 60,
-  queryString?: string
-) {
-  return cos.getObjectUrl({
-    Bucket: config.bucket,
-    Region: config.region,
-    Key: key,
-    Sign: true,
-    Expires: expires,
-    Method: "GET",
-    QueryString: queryString ?? ""
+  ciParams?: string
+): string {
+  const { bucket, region, secretId, secretKey } = config;
+  const host = `${bucket}.cos.${region}.myqcloud.com`;
+  const pathname = `/${key}`;
+  const startTime = Math.floor(Date.now() / 1000);
+  const endTime = startTime + expires;
+
+  // 把 ciParams 解析成 key-value 对象纳入签名
+  const queryObj: Record<string, string> = {};
+  if (ciParams) {
+    ciParams.split("&").forEach((pair) => {
+      const idx = pair.indexOf("=");
+      if (idx === -1) {
+        queryObj[pair] = "";
+      } else {
+        queryObj[pair.slice(0, idx)] = pair.slice(idx + 1);
+      }
+    });
+  }
+
+  const authorization = COS.getAuthorization({
+    SecretId: secretId,
+    SecretKey: secretKey,
+    Method: "get",
+    Pathname: pathname,
+    Query: queryObj,
+    Headers: { host },
+    KeyTime: `${startTime};${endTime}`
   });
+
+  const base = `https://${host}${pathname}?${authorization}`;
+  return ciParams ? `${base}&${ciParams}` : base;
 }
 
 export async function checkObjectExists(cos: COS, config: CosConfig, key: string) {
