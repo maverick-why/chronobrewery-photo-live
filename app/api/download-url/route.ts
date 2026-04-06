@@ -38,16 +38,11 @@ export async function GET(request: NextRequest) {
     const exists = await checkObjectExists(cos, config, candidate);
     if (!exists) continue;
 
-    // 签名不带水印参数，再拼接水印 rule
-    const signedUrl = createSignedObjectUrl(cos, config, candidate, SIGN_EXPIRES_SECONDS);
-    const url = `${signedUrl}&${buildDownloadWatermarkRule()}`;
+    const url = createSignedObjectUrl(
+      cos, config, candidate, SIGN_EXPIRES_SECONDS, buildDownloadWatermarkRule()
+    );
 
-    return NextResponse.json({
-      ok: true,
-      key: candidate,
-      url,
-      expiresIn: SIGN_EXPIRES_SECONDS
-    });
+    return NextResponse.json({ ok: true, key: candidate, url, expiresIn: SIGN_EXPIRES_SECONDS });
   }
 
   return NextResponse.json({ error: "object not found" }, { status: 404 });
