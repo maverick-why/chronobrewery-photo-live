@@ -5,8 +5,7 @@ import { createCosClient, readCosConfig } from "@/lib/cos";
 import { mapOriginalToDisplayKey, mapOriginalToDownloadKey } from "@/lib/photo-keys";
 import {
   buildDisplayWatermarkRule,
-  buildDownloadWatermarkRule,
-  createSignedWatermarkImageUrl
+  buildDownloadWatermarkRule
 } from "@/lib/watermark";
 import {
   buildOriginalObjectKey,
@@ -23,7 +22,7 @@ type UploadPolicyPayload = {
 const SIGN_EXPIRES_SECONDS = 10 * 60;
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;
 
-function buildPicOperations(originalKey: string, activitySlug: string, watermarkImageUrl: string) {
+function buildPicOperations(originalKey: string, activitySlug: string) {
   const displayKey = mapOriginalToDisplayKey(originalKey, activitySlug);
   const downloadKey = mapOriginalToDownloadKey(originalKey, activitySlug);
 
@@ -33,11 +32,11 @@ function buildPicOperations(originalKey: string, activitySlug: string, watermark
       {
         // Use absolute key so COS CI writes to bucket root instead of nesting under current original object path.
         fileid: `/${displayKey}`,
-        rule: buildDisplayWatermarkRule(watermarkImageUrl)
+        rule: buildDisplayWatermarkRule()
       },
       {
         fileid: `/${downloadKey}`,
-        rule: buildDownloadWatermarkRule(watermarkImageUrl)
+        rule: buildDownloadWatermarkRule()
       }
     ]
   });
@@ -77,8 +76,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 
-  const watermarkImageUrl = createSignedWatermarkImageUrl(createCosClient(config), config);
-  const picOperations = buildPicOperations(objectKey, activitySlug, watermarkImageUrl);
+  const picOperations = buildPicOperations(objectKey, activitySlug);
 
   const { bucket, region, secretId, secretKey } = config;
   const host = `${bucket}.cos.${region}.myqcloud.com`;
