@@ -1,7 +1,10 @@
 const DEFAULT_WATERMARK_TEXT = "时光酿造所";
 
 function toUrlSafeBase64(value: string) {
-  return Buffer.from(value, "utf8").toString("base64").replace(/\+/g, "-").replace(/\//g, "_");
+  return Buffer.from(value, "utf8")
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
 }
 
 export function getWatermarkText() {
@@ -19,9 +22,16 @@ function buildTextWatermarkSegment(fontSize: number, dissolve: number, dx: numbe
 }
 
 export function buildDisplayWatermarkRule() {
-  return `imageMogr2/thumbnail/2560x/quality/80/format/jpg|${buildTextWatermarkSegment(54, 70, 30, 30)}`;
+  // 用 / 连接，不用 |，COS CI 的 Pic-Operations rule 不支持管道
+  return (
+    `imageMogr2/thumbnail/2560x/quality/80/format/jpg` +
+    `/${buildTextWatermarkSegment(54, 70, 30, 30)}`
+  );
 }
 
 export function buildDownloadWatermarkRule() {
-  return `imageMogr2/quality/92/format/jpg|${buildTextWatermarkSegment(60, 72, 36, 36)}`;
+  return (
+    `imageMogr2/quality/92/format/jpg` +
+    `/${buildTextWatermarkSegment(60, 72, 36, 36)}`
+  );
 }
