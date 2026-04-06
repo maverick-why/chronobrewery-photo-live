@@ -7,6 +7,7 @@
 - Bucket：`chronobrewery-photo-1419349000`
 - Region：`ap-guangzhou`
 - 上传目录：`originals/{activitySlug}/YYYY-MM-DD/...`
+- 水印图建议路径：`watermark/logo.png`
 
 ## 2. 账号密钥权限建议
 
@@ -44,10 +45,12 @@
    - `originals/default/YYYY-MM-DD/{timestamp}-{random}.ext`
    - `display/default/YYYY-MM-DD/{timestamp}-{random}.jpg`
    - `download/default/YYYY-MM-DD/{timestamp}-{random}.jpg`
+4. 检查 `display/download` 图片右下角是否出现 logo 水印。
 
 ## 5. 常见报错排查
 
 - `403 SignatureDoesNotMatch`：检查 `TENCENT_SECRET_ID/KEY`、Bucket、Region 是否一致。
 - 上传成功但未生成 `display/download`：确认 Bucket 已开通并绑定数据万象（CI）。
+- 水印图不显示：确认 `WATERMARK_IMAGE_KEY` 指向的对象存在且可被 CI 读取（如 `watermark/logo.png`）。
 - 前端显示上传网络错误：优先检查 COS CORS 规则是否生效。
 - `ADMIN_USERNAME/ADMIN_PASSWORD is not configured`：Vercel 环境变量未绑定 Production 或未 Redeploy。

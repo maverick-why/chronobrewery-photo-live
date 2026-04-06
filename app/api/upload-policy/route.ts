@@ -17,25 +17,25 @@ type UploadPolicyPayload = {
 
 const SIGN_EXPIRES_SECONDS = 10 * 60;
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;
-const WATERMARK_TEXT = "时光酿造所";
+const DEFAULT_WATERMARK_IMAGE_KEY = "watermark/logo.png";
 
 function toUrlSafeBase64(value: string) {
   return Buffer.from(value, "utf8").toString("base64").replace(/\+/g, "-").replace(/\//g, "_");
 }
 
 function buildPicOperations(originalKey: string, activitySlug: string) {
-  const text = toUrlSafeBase64(WATERMARK_TEXT);
-  const fill = toUrlSafeBase64("#FFFFFF");
+  const watermarkImageKey = process.env.WATERMARK_IMAGE_KEY || DEFAULT_WATERMARK_IMAGE_KEY;
+  const imageKeyBase64 = toUrlSafeBase64(watermarkImageKey);
   const displayKey = mapOriginalToDisplayKey(originalKey, activitySlug);
   const downloadKey = mapOriginalToDownloadKey(originalKey, activitySlug);
 
   const displayRule =
     `imageMogr2/thumbnail/2560x/quality/80/format/jpg` +
-    `/watermark/2/text/${text}/fontsize/36/fill/${fill}/dissolve/60/gravity/SouthEast/dx/24/dy/24`;
+    `/watermark/1/image_key/${imageKeyBase64}/dissolve/75/gravity/SouthEast/dx/24/dy/24`;
 
   const downloadRule =
     `imageMogr2/quality/92/format/jpg` +
-    `/watermark/2/text/${text}/fontsize/40/fill/${fill}/dissolve/62/gravity/SouthEast/dx/28/dy/28`;
+    `/watermark/1/image_key/${imageKeyBase64}/dissolve/78/gravity/SouthEast/dx/28/dy/28`;
 
   return JSON.stringify({
     is_pic_info: 1,
