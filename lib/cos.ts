@@ -12,20 +12,10 @@ export function readCosConfig(): CosConfig {
   const region = process.env.TENCENT_COS_REGION;
   const secretId = process.env.TENCENT_SECRET_ID;
   const secretKey = process.env.TENCENT_SECRET_KEY;
-
-  if (!bucket) {
-    throw new Error("TENCENT_COS_BUCKET is not configured");
-  }
-  if (!region) {
-    throw new Error("TENCENT_COS_REGION is not configured");
-  }
-  if (!secretId) {
-    throw new Error("TENCENT_SECRET_ID is not configured");
-  }
-  if (!secretKey) {
-    throw new Error("TENCENT_SECRET_KEY is not configured");
-  }
-
+  if (!bucket) throw new Error("TENCENT_COS_BUCKET is not configured");
+  if (!region) throw new Error("TENCENT_COS_REGION is not configured");
+  if (!secretId) throw new Error("TENCENT_SECRET_ID is not configured");
+  if (!secretKey) throw new Error("TENCENT_SECRET_KEY is not configured");
   return { bucket, region, secretId, secretKey };
 }
 
@@ -50,7 +40,7 @@ export function createSignedObjectUrl(
     Sign: true,
     Expires: expires,
     Method: "GET",
-    QueryString: queryString
+    QueryString: queryString ?? ""
   });
 }
 
