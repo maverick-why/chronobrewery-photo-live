@@ -22,21 +22,19 @@ type UploadPolicyPayload = {
 const SIGN_EXPIRES_SECONDS = 10 * 60;
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;
 
-function buildPicOperations(originalKey: string, activitySlug: string) {
+function buildPicOperations(originalKey: string, activitySlug: string, bucket: string, region: string) {
   const displayKey = mapOriginalToDisplayKey(originalKey, activitySlug);
   const downloadKey = mapOriginalToDownloadKey(originalKey, activitySlug);
-
   return JSON.stringify({
     is_pic_info: 1,
     rules: [
       {
-        // Use absolute key so COS CI writes to bucket root instead of nesting under current original object path.
         fileid: `/${displayKey}`,
-        rule: buildDisplayWatermarkRule()
+        rule: buildDisplayWatermarkRule(bucket, region)
       },
       {
         fileid: `/${downloadKey}`,
-        rule: buildDownloadWatermarkRule()
+        rule: buildDownloadWatermarkRule(bucket, region)
       }
     ]
   });
@@ -54,12 +52,14 @@ export async function POST(request: NextRequest) {
   if (!body?.filename) {
     return NextResponse.json({ error: "filename is required" }, { status: 400 });
   }
+
   if (body.fileSize && body.fileSize > MAX_FILE_SIZE_BYTES) {
     return NextResponse.json(
       { error: `file size exceeds ${Math.round(MAX_FILE_SIZE_BYTES / 1024 / 1024)}MB` },
       { status: 400 }
     );
   }
+
   if (body.contentType && !body.contentType.startsWith("image/")) {
     return NextResponse.json({ error: "only image uploads are allowed" }, { status: 400 });
   }
@@ -76,9 +76,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 
-  const picOperations = buildPicOperations(objectKey, activitySlug);
-
   const { bucket, region, secretId, secretKey } = config;
+  const picOperations = buildPicOperations(objectKey, activitySlug, bucket, region);
   const host = `${bucket}.cos.${region}.myqcloud.com`;
   const pathname = `/${objectKey}`;
   const startTime = Math.floor(Date.now() / 1000);
