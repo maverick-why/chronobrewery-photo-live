@@ -55,6 +55,138 @@ function groupByDate(photos: Photo[]): Record<string, Photo[]> {
   }, {})
 }
 
+// ─── SVG Icons ────────────────────────────────────────────────────────────────
+
+function DownloadIcon({ size = 16, color = 'currentColor' }: { size?: number; color?: string }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke={color}
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M8 2v8M5 7l3 3 3-3" />
+      <path d="M2 13h12" />
+    </svg>
+  )
+}
+
+function RefreshIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M13.5 2.5A7 7 0 1 0 14 8" />
+      <path d="M14 2.5V6h-3.5" />
+    </svg>
+  )
+}
+
+// ─── Photo Card ───────────────────────────────────────────────────────────────
+
+function PhotoCard({
+  photo,
+  onClick,
+}: {
+  photo: Photo
+  onClick: () => void
+}) {
+  const [hovered, setHovered] = useState(false)
+
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        breakInside: 'avoid',
+        marginBottom: 10,
+        borderRadius: 10,
+        overflow: 'hidden',
+        border: '0.5px solid var(--border)',
+        cursor: 'pointer',
+        position: 'relative',
+        background: 'var(--surface)',
+        transition: 'border-color 0.2s',
+        borderColor: hovered ? 'var(--border-hover)' : 'var(--border)',
+      }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={photo.previewUrl}
+        alt=""
+        loading="lazy"
+        style={{
+          width: '100%',
+          display: 'block',
+          transition: 'transform 0.35s ease',
+          transform: hovered ? 'scale(1.025)' : 'scale(1)',
+        }}
+      />
+
+      {/* Hover overlay */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: '36px 12px 12px',
+          background: 'linear-gradient(transparent, rgba(0,0,0,0.6))',
+          opacity: hovered ? 1 : 0,
+          transition: 'opacity 0.25s',
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+        }}
+      >
+        <span
+          style={{
+            fontSize: 11,
+            color: 'rgba(255,255,255,0.75)',
+            letterSpacing: '0.02em',
+          }}
+        >
+          {formatTime(photo.uploadedAt)}
+        </span>
+        <a
+          href={photo.displayUrl}
+          download
+          target="_blank"
+          rel="noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            fontSize: 11,
+            fontWeight: 500,
+            padding: '5px 11px',
+            borderRadius: 6,
+            background: 'rgba(255,255,255,0.95)',
+            color: '#111',
+            textDecoration: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 5,
+          }}
+        >
+          <DownloadIcon size={11} color="#111" />
+          下载
+        </a>
+      </div>
+    </div>
+  )
+}
+
 // ─── Lightbox ─────────────────────────────────────────────────────────────────
 
 function Lightbox({
@@ -171,7 +303,7 @@ function Lightbox({
         }}
       />
 
-      {/* Bottom meta */}
+      {/* Meta */}
       <div
         style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}
         onClick={(e) => e.stopPropagation()}
@@ -179,7 +311,7 @@ function Lightbox({
         {formatTime(p.uploadedAt)} · {formatSize(p.size)}
       </div>
 
-      {/* Prev / Next */}
+      {/* Prev */}
       {index > 0 && (
         <button
           onClick={(e) => { e.stopPropagation(); onPrev() }}
@@ -198,12 +330,14 @@ function Lightbox({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: 18,
+            fontSize: 20,
           }}
         >
           ‹
         </button>
       )}
+
+      {/* Next */}
       {index < photos.length - 1 && (
         <button
           onClick={(e) => { e.stopPropagation(); onNext() }}
@@ -222,156 +356,12 @@ function Lightbox({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: 18,
+            fontSize: 20,
           }}
         >
           ›
         </button>
       )}
-    </div>
-  )
-}
-
-// ─── SVG Icons ────────────────────────────────────────────────────────────────
-
-function DownloadIcon({ size = 16, color = 'currentColor' }: { size?: number; color?: string }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke={color}
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M8 2v8M5 7l3 3 3-3" />
-      <path d="M2 13h12" />
-    </svg>
-  )
-}
-
-function RefreshIcon({ size = 14 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M13.5 2.5A7 7 0 1 0 14 8" />
-      <path d="M14 2.5V6h-3.5" />
-    </svg>
-  )
-}
-
-// ─── Photo Card ───────────────────────────────────────────────────────────────
-
-function PhotoCard({
-  photo,
-  onClick,
-}: {
-  photo: Photo
-  onClick: () => void
-}) {
-  const [hovered, setHovered] = useState(false)
-  const [imgLoaded, setImgLoaded] = useState(false)
-
-  return (
-    <div
-      onClick={onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        breakInside: 'avoid',
-        marginBottom: 10,
-        borderRadius: 10,
-        overflow: 'hidden',
-        border: '0.5px solid var(--border)',
-        cursor: 'pointer',
-        position: 'relative',
-        background: 'var(--surface)',
-        transition: 'border-color 0.2s',
-        borderColor: hovered ? 'var(--border-hover)' : 'var(--border)',
-      }}
-    >
-      {/* Skeleton */}
-      {!imgLoaded && (
-        <div
-          style={{
-            width: '100%',
-            paddingTop: '66%',
-            background: 'var(--surface)',
-          }}
-        />
-      )}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={photo.previewUrl}
-        alt=""
-        loading="lazy"
-        onLoad={() => setImgLoaded(true)}
-        style={{
-          width: '100%',
-          display: imgLoaded ? 'block' : 'none',
-          transition: 'transform 0.35s ease',
-          transform: hovered ? 'scale(1.025)' : 'scale(1)',
-        }}
-      />
-
-      {/* Hover overlay */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          padding: '36px 12px 12px',
-          background: 'linear-gradient(transparent, rgba(0,0,0,0.6))',
-          opacity: hovered ? 1 : 0,
-          transition: 'opacity 0.25s',
-          display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'space-between',
-        }}
-      >
-        <span
-          style={{
-            fontSize: 11,
-            color: 'rgba(255,255,255,0.75)',
-            letterSpacing: '0.02em',
-          }}
-        >
-          {formatTime(photo.uploadedAt)}
-        </span>
-        <a
-          href={photo.displayUrl}
-          download
-          target="_blank"
-          rel="noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          style={{
-            fontSize: 11,
-            fontWeight: 500,
-            padding: '5px 11px',
-            borderRadius: 6,
-            background: 'rgba(255,255,255,0.95)',
-            color: '#111',
-            textDecoration: 'none',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 5,
-          }}
-        >
-          <DownloadIcon size={11} color="#111" />
-          下载
-        </a>
-      </div>
     </div>
   )
 }
@@ -403,7 +393,6 @@ export default function HomePage() {
 
   useEffect(() => {
     fetchPhotos()
-    // Auto-refresh every 30s for live feel
     intervalRef.current = setInterval(fetchPhotos, 30_000)
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current)
@@ -415,7 +404,6 @@ export default function HomePage() {
 
   return (
     <>
-      {/* ── CSS Variables ── */}
       <style>{`
         :root {
           --bg: #fafafa;
@@ -452,9 +440,7 @@ export default function HomePage() {
           to   { opacity: 1; transform: translateY(0); }
         }
         .fade-in { animation: fadein 0.4s ease both; }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         .spin { animation: spin 0.8s linear infinite; display: inline-block; }
       `}</style>
 
@@ -476,7 +462,6 @@ export default function HomePage() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {/* Logo mark */}
           <div
             style={{
               width: 24,
@@ -504,7 +489,6 @@ export default function HomePage() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {/* Live indicator */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <span
               style={{
@@ -516,9 +500,7 @@ export default function HomePage() {
                 flexShrink: 0,
               }}
             />
-            <span style={{ fontSize: 12, color: 'var(--text-3)', letterSpacing: '0.01em' }}>
-              Live
-            </span>
+            <span style={{ fontSize: 12, color: 'var(--text-3)' }}>Live</span>
           </div>
           <a
             href="/admin/login"
@@ -542,8 +524,6 @@ export default function HomePage() {
         style={{
           padding: '44px 32px 28px',
           borderBottom: '0.5px solid var(--border)',
-          maxWidth: 1100,
-          margin: '0 auto',
         }}
       >
         <div
@@ -559,7 +539,7 @@ export default function HomePage() {
         </div>
         <h1
           style={{
-            fontSize: 'clamp(28px, 4vw, 44px)',
+            fontSize: 'clamp(26px, 3.5vw, 40px)',
             fontWeight: 500,
             letterSpacing: '-0.025em',
             lineHeight: 1.12,
@@ -574,19 +554,18 @@ export default function HomePage() {
             fontSize: 14,
             color: 'var(--text-2)',
             lineHeight: 1.65,
-            maxWidth: 420,
-            marginBottom: 24,
+            maxWidth: 400,
+            marginBottom: 28,
           }}
         >
           摄影师上传后即时可见。点击图片查看大图，或直接下载带水印高清版本。
         </p>
 
-        {/* Stats row */}
         <div style={{ display: 'flex', gap: 0, flexWrap: 'wrap' }}>
           {[
-            { n: loading ? '…' : photos.length.toString(), l: '张照片' },
+            { n: loading ? '…' : String(photos.length), l: '张照片' },
             {
-              n: dateKeys.length > 0 ? formatDate(photos[photos.length - 1]?.uploadedAt) : '—',
+              n: photos.length > 0 ? formatDate(photos[photos.length - 1].uploadedAt) : '—',
               l: '活动日期',
             },
             {
@@ -604,14 +583,7 @@ export default function HomePage() {
                 borderRight: i < 2 ? '0.5px solid var(--border)' : 'none',
               }}
             >
-              <div
-                style={{
-                  fontSize: 22,
-                  fontWeight: 500,
-                  letterSpacing: '-0.02em',
-                  color: 'var(--text)',
-                }}
-              >
+              <div style={{ fontSize: 20, fontWeight: 500, letterSpacing: '-0.02em' }}>
                 {s.n}
               </div>
               <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 2 }}>{s.l}</div>
@@ -628,8 +600,6 @@ export default function HomePage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          maxWidth: 1100,
-          margin: '0 auto',
         }}
       >
         <span style={{ fontSize: 12, color: 'var(--text-3)' }}>
@@ -657,43 +627,33 @@ export default function HomePage() {
         </button>
       </div>
 
-      {/* ── Main Content ── */}
-      <main style={{ maxWidth: 1100, margin: '0 auto', padding: '24px 32px 64px' }}>
+      {/* ── Main ── */}
+      <main style={{ padding: '24px 32px 64px' }}>
 
-        {/* Loading state */}
+        {/* Loading skeleton */}
         {loading && (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, minmax(0,1fr))',
-              gap: 10,
-            }}
-          >
+          <div style={{ columns: 3, gap: 10 }}>
             {Array.from({ length: 9 }).map((_, i) => (
               <div
                 key={i}
                 style={{
+                  breakInside: 'avoid',
+                  marginBottom: 10,
                   borderRadius: 10,
                   background: 'var(--surface)',
-                  paddingTop: `${55 + (i % 3) * 15}%`,
+                  height: 180 + (i % 3) * 60,
                   border: '0.5px solid var(--border)',
-                  opacity: 1 - i * 0.08,
+                  opacity: 1 - i * 0.07,
                 }}
               />
             ))}
           </div>
         )}
 
-        {/* Error state */}
+        {/* Error */}
         {!loading && error && (
-          <div
-            style={{
-              textAlign: 'center',
-              padding: '60px 0',
-              color: 'var(--text-3)',
-            }}
-          >
-            <div style={{ fontSize: 15, marginBottom: 8 }}>加载失败</div>
+          <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-3)' }}>
+            <div style={{ fontSize: 15, marginBottom: 12 }}>加载失败</div>
             <button
               onClick={fetchPhotos}
               style={{
@@ -711,30 +671,21 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Empty state */}
+        {/* Empty */}
         {!loading && !error && photos.length === 0 && (
-          <div
-            style={{
-              textAlign: 'center',
-              padding: '80px 0',
-              color: 'var(--text-3)',
-            }}
-          >
-            <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.3 }}>◻</div>
+          <div style={{ textAlign: 'center', padding: '80px 0', color: 'var(--text-3)' }}>
+            <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.25 }}>◻</div>
             <div style={{ fontSize: 14 }}>暂无照片</div>
-            <div style={{ fontSize: 12, marginTop: 6, color: 'var(--text-3)' }}>
-              摄影师上传后将在此显示
-            </div>
+            <div style={{ fontSize: 12, marginTop: 6 }}>摄影师上传后将在此显示</div>
           </div>
         )}
 
-        {/* Photo grid – grouped by date */}
+        {/* Photos grouped by date */}
         {!loading && !error && photos.length > 0 &&
           dateKeys.map((dateKey) => {
             const dayPhotos = grouped[dateKey]
             return (
               <div key={dateKey} style={{ marginBottom: 40 }}>
-                {/* Date header */}
                 <div
                   style={{
                     display: 'flex',
@@ -749,6 +700,7 @@ export default function HomePage() {
                       fontWeight: 500,
                       color: 'var(--text-2)',
                       letterSpacing: '-0.01em',
+                      whiteSpace: 'nowrap',
                     }}
                   >
                     {formatDate(dayPhotos[0].uploadedAt)}
@@ -760,6 +712,7 @@ export default function HomePage() {
                       padding: '2px 8px',
                       borderRadius: 10,
                       border: '0.5px solid var(--border)',
+                      whiteSpace: 'nowrap',
                     }}
                   >
                     {dayPhotos.length} 张
@@ -767,23 +720,14 @@ export default function HomePage() {
                   <div style={{ flex: 1, height: '0.5px', background: 'var(--border)' }} />
                 </div>
 
-                {/* Masonry columns */}
-                <div
-                  style={{
-                    columns: 3,
-                    gap: 10,
-                  }}
-                >
-                  {dayPhotos.map((photo, idx) => {
-                    const globalIdx = photos.indexOf(photo)
-                    return (
-                      <PhotoCard
-                        key={photo.key}
-                        photo={photo}
-                        onClick={() => setLbIndex(globalIdx)}
-                      />
-                    )
-                  })}
+                <div style={{ columns: 3, gap: 10 }}>
+                  {dayPhotos.map((photo) => (
+                    <PhotoCard
+                      key={photo.key}
+                      photo={photo}
+                      onClick={() => setLbIndex(photos.indexOf(photo))}
+                    />
+                  ))}
                 </div>
               </div>
             )
@@ -799,8 +743,6 @@ export default function HomePage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          maxWidth: 1100,
-          margin: '0 auto',
         }}
       >
         <span style={{ fontSize: 12, color: 'var(--text-3)' }}>
@@ -818,9 +760,7 @@ export default function HomePage() {
           index={lbIndex}
           onClose={() => setLbIndex(null)}
           onPrev={() => setLbIndex((i) => (i !== null && i > 0 ? i - 1 : i))}
-          onNext={() =>
-            setLbIndex((i) => (i !== null && i < photos.length - 1 ? i + 1 : i))
-          }
+          onNext={() => setLbIndex((i) => (i !== null && i < photos.length - 1 ? i + 1 : i))}
         />
       )}
     </>
