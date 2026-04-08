@@ -55,32 +55,39 @@ function buildTextWatermarkSegment(fontSize: number, dissolve: number, dx: numbe
 }
 
 function buildDisplayWatermarkChain(bucket: string, region: string) {
+  // ws/0.33 = logo 宽度占原图宽度 1/3，右下角贴边
   const segments = [
-    buildImageWatermarkSegment(bucket, region, 88, 0.18, 10, 10),
-    buildTextWatermarkSegment(42, 62, 28, 28)
+    buildImageWatermarkSegment(bucket, region, 92, 0.33, 8, 8),
+    buildTextWatermarkSegment(42, 62, 28, 28),
   ].filter(Boolean);
   return segments.join("|");
 }
 
 function buildDownloadWatermarkChain(bucket: string, region: string) {
+  // 下载图同比例，稍微离边远一点
   const segments = [
-    buildImageWatermarkSegment(bucket, region, 90, 0.18, 12, 12),
-    buildTextWatermarkSegment(48, 66, 36, 36)
+    buildImageWatermarkSegment(bucket, region, 92, 0.33, 10, 10),
+    buildTextWatermarkSegment(48, 66, 36, 36),
   ].filter(Boolean);
   return segments.join("|");
 }
 
 // 用于 Pic-Operations 上传时生成衍生图（返回 rules 数组）
-export function buildDisplayPicRules(bucket: string, region: string, displayKey: string, downloadKey: string) {
+export function buildDisplayPicRules(
+  bucket: string,
+  region: string,
+  displayKey: string,
+  downloadKey: string
+) {
   return [
     {
       fileid: `/${displayKey}`,
-      rule: `imageMogr2/thumbnail/2560x/quality/80/format/jpg|${buildDisplayWatermarkChain(bucket, region)}`
+      rule: `imageMogr2/thumbnail/2560x/quality/80/format/jpg|${buildDisplayWatermarkChain(bucket, region)}`,
     },
     {
       fileid: `/${downloadKey}`,
-      rule: `imageMogr2/quality/92/format/jpg|${buildDownloadWatermarkChain(bucket, region)}`
-    }
+      rule: `imageMogr2/quality/92/format/jpg|${buildDownloadWatermarkChain(bucket, region)}`,
+    },
   ];
 }
 
