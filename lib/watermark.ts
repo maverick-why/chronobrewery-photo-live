@@ -94,14 +94,25 @@ function buildFogBackgroundSegment(plateWs: number, dx: number, dy: number) {
   return `watermark/2/text/${fogBase64}/fontsize/${fontSize}/fill/${fogFillBase64}/dissolve/58/gravity/SouthEast/dx/${dx}/dy/${dy}`;
 }
 
+function getCenteredLogoOffset(plateWs: number, logoWs: number, plateDx: number, plateDy: number) {
+  // Keep the plate fixed, then shift logo inward so it sits closer to the plate center.
+  const shiftX = Math.round(Math.max(0, (plateWs - logoWs) * 960));
+  const shiftY = Math.round(Math.max(18, logoWs * 170));
+  return {
+    dx: plateDx + shiftX,
+    dy: plateDy + shiftY
+  };
+}
+
 function buildDisplayWatermarkChain(bucket: string, region: string) {
   const logoWs = 0.20;
   const plateWs = 0.32;
-  const logoDx = 8;
-  const logoDy = 8;
+  const plateDx = 8;
+  const plateDy = 8;
+  const logoOffset = getCenteredLogoOffset(plateWs, logoWs, plateDx, plateDy);
   const segments = [
-    buildFogBackgroundSegment(plateWs, logoDx, logoDy),
-    buildImageWatermarkSegment(bucket, region, 96, logoWs, logoDx, logoDy),
+    buildFogBackgroundSegment(plateWs, plateDx, plateDy),
+    buildImageWatermarkSegment(bucket, region, 96, logoWs, logoOffset.dx, logoOffset.dy),
     buildTextWatermarkSegment(42, 62, 28, 28)
   ].filter(Boolean);
   return segments.join("|");
@@ -110,11 +121,12 @@ function buildDisplayWatermarkChain(bucket: string, region: string) {
 function buildDownloadWatermarkChain(bucket: string, region: string) {
   const logoWs = 0.20;
   const plateWs = 0.34;
-  const logoDx = 10;
-  const logoDy = 10;
+  const plateDx = 10;
+  const plateDy = 10;
+  const logoOffset = getCenteredLogoOffset(plateWs, logoWs, plateDx, plateDy);
   const segments = [
-    buildFogBackgroundSegment(plateWs, logoDx, logoDy),
-    buildImageWatermarkSegment(bucket, region, 96, logoWs, logoDx, logoDy),
+    buildFogBackgroundSegment(plateWs, plateDx, plateDy),
+    buildImageWatermarkSegment(bucket, region, 96, logoWs, logoOffset.dx, logoOffset.dy),
     buildTextWatermarkSegment(48, 66, 36, 36)
   ].filter(Boolean);
   return segments.join("|");
