@@ -85,26 +85,34 @@ function buildTextWatermarkSegment(fontSize: number, dissolve: number, dx: numbe
   );
 }
 
-function buildFogBackgroundSegment(dx: number, dy: number) {
-  // A lightweight translucent white strip behind the logo to improve readability on dark photos.
-  const fogText = "████████████████";
+function buildFogBackgroundSegment(logoWs: number, dx: number, dy: number) {
+  // Keep fog and logo aligned in the same anchor area so the fog visually sits right under the logo.
+  const fogText = "█████████████";
   const fogBase64 = toUrlSafeBase64(fogText);
-  return `watermark/2/text/${fogBase64}/fontsize/120/fill/I0ZGRkZGRg==/dissolve/28/gravity/SouthEast/dx/${dx}/dy/${dy}`;
+  const fogFillBase64 = toUrlSafeBase64("#EEF2F5");
+  const fontSize = Math.max(84, Math.round(logoWs * 520));
+  return `watermark/2/text/${fogBase64}/fontsize/${fontSize}/fill/${fogFillBase64}/dissolve/36/gravity/SouthEast/dx/${dx}/dy/${dy}`;
 }
 
 function buildDisplayWatermarkChain(bucket: string, region: string) {
+  const logoWs = 0.22;
+  const logoDx = 10;
+  const logoDy = 10;
   const segments = [
-    buildFogBackgroundSegment(20, 20),
-    buildImageWatermarkSegment(bucket, region, 92, 0.22, 10, 10),
+    buildFogBackgroundSegment(logoWs, logoDx, logoDy),
+    buildImageWatermarkSegment(bucket, region, 92, logoWs, logoDx, logoDy),
     buildTextWatermarkSegment(42, 62, 28, 28)
   ].filter(Boolean);
   return segments.join("|");
 }
 
 function buildDownloadWatermarkChain(bucket: string, region: string) {
+  const logoWs = 0.22;
+  const logoDx = 12;
+  const logoDy = 12;
   const segments = [
-    buildFogBackgroundSegment(24, 24),
-    buildImageWatermarkSegment(bucket, region, 94, 0.22, 12, 12),
+    buildFogBackgroundSegment(logoWs, logoDx, logoDy),
+    buildImageWatermarkSegment(bucket, region, 94, logoWs, logoDx, logoDy),
     buildTextWatermarkSegment(48, 66, 36, 36)
   ].filter(Boolean);
   return segments.join("|");
