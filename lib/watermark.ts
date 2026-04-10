@@ -150,6 +150,11 @@ export function buildDisplayWatermarkRule(bucket: string, region: string) {
   return `imageMogr2/thumbnail/2560x/quality/80/format/jpg|${buildDisplayWatermarkChain(bucket, region)}`;
 }
 
+export function buildPreviewWatermarkRule(bucket: string, region: string) {
+  // Frontend browsing preview: prioritize smaller size and faster loading.
+  return `imageMogr2/thumbnail/1280x/quality/45/format/webp|${buildDisplayWatermarkChain(bucket, region)}`;
+}
+
 export function buildDownloadWatermarkRule(bucket: string, region: string) {
   return `imageMogr2/quality/92/format/jpg|${buildDownloadWatermarkChain(bucket, region)}`;
 }

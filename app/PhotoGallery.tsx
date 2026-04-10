@@ -139,7 +139,7 @@ export function PhotoGallery() {
                 <img
                   alt={photo.key}
                   loading="lazy"
-                  src={photo.displayUrl}
+                  src={photo.previewUrl}
                   style={{ display: "block", width: "100%", aspectRatio: "1 / 1", objectFit: "cover" }}
                 />
               </a>
