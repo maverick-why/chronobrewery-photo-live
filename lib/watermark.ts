@@ -151,8 +151,8 @@ export function buildDisplayWatermarkRule(bucket: string, region: string) {
 }
 
 export function buildPreviewWatermarkRule(bucket: string, region: string) {
-  // Frontend browsing preview: prioritize smaller size and faster loading.
-  return `imageMogr2/thumbnail/1280x/quality/45/format/webp|${buildDisplayWatermarkChain(bucket, region)}`;
+  // Frontend browsing preview: keep logo-compatible processing while shrinking payload.
+  return `imageMogr2/thumbnail/1080x/quality/42/format/jpg|${buildDisplayWatermarkChain(bucket, region)}`;
 }
 
 export function buildDownloadWatermarkRule(bucket: string, region: string) {
