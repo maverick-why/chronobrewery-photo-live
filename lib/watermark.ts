@@ -51,6 +51,26 @@ function buildUploadImageWatermarkSegment(
   return `watermark/1/image/${imageBase64}/dissolve/${dissolve}/gravity/SouthEast/dx/${dx}/dy/${dy}`;
 }
 
+function buildUploadDisplayRule(bucket: string, region: string) {
+  return `imageMogr2/thumbnail/2560x/quality/80/format/jpg/${buildUploadImageWatermarkSegment(
+    bucket,
+    region,
+    88,
+    10,
+    10
+  )}`;
+}
+
+function buildUploadDownloadRule(bucket: string, region: string) {
+  return `imageMogr2/quality/92/format/jpg/${buildUploadImageWatermarkSegment(
+    bucket,
+    region,
+    90,
+    12,
+    12
+  )}`;
+}
+
 function buildTextWatermarkSegment(fontSize: number, dissolve: number, dx: number, dy: number) {
   const text = getWatermarkText().trim();
   if (!text) {
@@ -82,24 +102,14 @@ function buildDownloadWatermarkChain(bucket: string, region: string) {
 }
 
 export function buildDisplayPicRules(bucket: string, region: string, displayKey: string, downloadKey: string) {
-  const displayWatermarkRule = buildUploadImageWatermarkSegment(bucket, region, 88, 10, 10);
-  const downloadWatermarkRule = buildUploadImageWatermarkSegment(bucket, region, 90, 12, 12);
   return [
     {
       fileid: `/${displayKey}`,
-      rule: "imageMogr2/thumbnail/2560x/quality/80/format/jpg"
-    },
-    {
-      fileid: `/${displayKey}`,
-      rule: displayWatermarkRule
+      rule: buildUploadDisplayRule(bucket, region)
     },
     {
       fileid: `/${downloadKey}`,
-      rule: "imageMogr2/quality/92/format/jpg"
-    },
-    {
-      fileid: `/${downloadKey}`,
-      rule: downloadWatermarkRule
+      rule: buildUploadDownloadRule(bucket, region)
     }
   ];
 }
