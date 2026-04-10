@@ -19,7 +19,12 @@ type UploadPolicyPayload = {
 const SIGN_EXPIRES_SECONDS = 10 * 60;
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;
 
-function buildPicOperations(originalKey: string, activitySlug: string, bucket: string, region: string) {
+function buildPicOperations(
+  originalKey: string,
+  activitySlug: string,
+  bucket: string,
+  region: string
+) {
   const displayKey = mapOriginalToDisplayKey(originalKey, activitySlug);
   const downloadKey = mapOriginalToDownloadKey(originalKey, activitySlug);
   return JSON.stringify({
@@ -66,6 +71,8 @@ export async function POST(request: NextRequest) {
 
   const { bucket, region, secretId, secretKey } = config;
   const picOperations = buildPicOperations(objectKey, activitySlug, bucket, region);
+  const contentType = body.contentType || "application/octet-stream";
+
   const host = `${bucket}.cos.${region}.myqcloud.com`;
   const pathname = `/${objectKey}`;
   const startTime = Math.floor(Date.now() / 1000);
@@ -78,6 +85,7 @@ export async function POST(request: NextRequest) {
     Pathname: pathname,
     Headers: {
       host,
+      "Content-Type": contentType,
       "Pic-Operations": picOperations
     },
     KeyTime: `${startTime};${endTime}`
@@ -92,7 +100,7 @@ export async function POST(request: NextRequest) {
     expiresAt: endTime,
     headers: {
       Authorization: authorization,
-      "Content-Type": body.contentType || "application/octet-stream",
+      "Content-Type": contentType,
       "Pic-Operations": picOperations
     },
     derivatives: {
