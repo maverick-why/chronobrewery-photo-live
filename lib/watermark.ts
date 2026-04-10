@@ -85,34 +85,36 @@ function buildTextWatermarkSegment(fontSize: number, dissolve: number, dx: numbe
   );
 }
 
-function buildFogBackgroundSegment(logoWs: number, dx: number, dy: number) {
-  // Keep fog and logo aligned in the same anchor area so the fog visually sits right under the logo.
-  const fogText = "█████████████";
+function buildFogBackgroundSegment(plateWs: number, dx: number, dy: number) {
+  // Build a rectangular "nameplate" style panel under the logo.
+  const fogText = "██████████████████████";
   const fogBase64 = toUrlSafeBase64(fogText);
-  const fogFillBase64 = toUrlSafeBase64("#EEF2F5");
-  const fontSize = Math.max(84, Math.round(logoWs * 520));
-  return `watermark/2/text/${fogBase64}/fontsize/${fontSize}/fill/${fogFillBase64}/dissolve/36/gravity/SouthEast/dx/${dx}/dy/${dy}`;
+  const fogFillBase64 = toUrlSafeBase64("#D9DEE3");
+  const fontSize = Math.max(110, Math.round(plateWs * 860));
+  return `watermark/2/text/${fogBase64}/fontsize/${fontSize}/fill/${fogFillBase64}/dissolve/58/gravity/SouthEast/dx/${dx}/dy/${dy}`;
 }
 
 function buildDisplayWatermarkChain(bucket: string, region: string) {
-  const logoWs = 0.22;
-  const logoDx = 10;
-  const logoDy = 10;
+  const logoWs = 0.20;
+  const plateWs = 0.32;
+  const logoDx = 8;
+  const logoDy = 8;
   const segments = [
-    buildFogBackgroundSegment(logoWs, logoDx, logoDy),
-    buildImageWatermarkSegment(bucket, region, 92, logoWs, logoDx, logoDy),
+    buildFogBackgroundSegment(plateWs, logoDx, logoDy),
+    buildImageWatermarkSegment(bucket, region, 96, logoWs, logoDx, logoDy),
     buildTextWatermarkSegment(42, 62, 28, 28)
   ].filter(Boolean);
   return segments.join("|");
 }
 
 function buildDownloadWatermarkChain(bucket: string, region: string) {
-  const logoWs = 0.22;
-  const logoDx = 12;
-  const logoDy = 12;
+  const logoWs = 0.20;
+  const plateWs = 0.34;
+  const logoDx = 10;
+  const logoDy = 10;
   const segments = [
-    buildFogBackgroundSegment(logoWs, logoDx, logoDy),
-    buildImageWatermarkSegment(bucket, region, 94, logoWs, logoDx, logoDy),
+    buildFogBackgroundSegment(plateWs, logoDx, logoDy),
+    buildImageWatermarkSegment(bucket, region, 96, logoWs, logoDx, logoDy),
     buildTextWatermarkSegment(48, 66, 36, 36)
   ].filter(Boolean);
   return segments.join("|");
