@@ -6,7 +6,7 @@ import {
   mapOriginalToDisplayKey,
   mapOriginalToDownloadKey
 } from "@/lib/photo-keys";
-import { buildDisplayWatermarkRule, buildPreviewWatermarkRule } from "@/lib/watermark";
+import { buildDisplayWatermarkRule } from "@/lib/watermark";
 
 const SIGN_EXPIRES_SECONDS = 60 * 30;
 const LIST_SCAN_MAX_KEYS = 1000;
@@ -82,14 +82,7 @@ function buildPhoto(
       SIGN_EXPIRES_SECONDS,
       buildDisplayWatermarkRule(config.bucket, config.region)
     );
-    const previewUrl = createSignedObjectUrl(
-      cos,
-      config,
-      displayKey,
-      SIGN_EXPIRES_SECONDS,
-      buildPreviewWatermarkRule(config.bucket, config.region)
-    );
-    return { key, displayKey, downloadKey, originalKey, displayUrl, previewUrl, source, size, uploadedAt };
+    return { key, displayKey, downloadKey, originalKey, displayUrl, previewUrl: displayUrl, source, size, uploadedAt };
   }
 
   const originalKey = key;
@@ -102,20 +95,13 @@ function buildPhoto(
     SIGN_EXPIRES_SECONDS,
     buildDisplayWatermarkRule(config.bucket, config.region)
   );
-  const previewUrl = createSignedObjectUrl(
-    cos,
-    config,
-    originalKey,
-    SIGN_EXPIRES_SECONDS,
-    buildPreviewWatermarkRule(config.bucket, config.region)
-  );
   return {
     key,
     displayKey,
     downloadKey,
     originalKey,
     displayUrl: originalUrlWithWatermark,
-    previewUrl,
+    previewUrl: originalUrlWithWatermark,
     source,
     size,
     uploadedAt
