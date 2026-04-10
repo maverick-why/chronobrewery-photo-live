@@ -55,18 +55,16 @@ function buildTextWatermarkSegment(fontSize: number, dissolve: number, dx: numbe
 }
 
 function buildDisplayWatermarkChain(bucket: string, region: string) {
-  // ws/0.33 = logo 宽度占原图宽度 1/3，右下角贴边
   const segments = [
-    buildImageWatermarkSegment(bucket, region, 92, 0.33, 8, 8),
+    buildImageWatermarkSegment(bucket, region, 88, 0.18, 10, 10),
     buildTextWatermarkSegment(42, 62, 28, 28),
   ].filter(Boolean);
   return segments.join("|");
 }
 
 function buildDownloadWatermarkChain(bucket: string, region: string) {
-  // 下载图同比例，稍微离边远一点
   const segments = [
-    buildImageWatermarkSegment(bucket, region, 92, 0.33, 10, 10),
+    buildImageWatermarkSegment(bucket, region, 90, 0.18, 12, 12),
     buildTextWatermarkSegment(48, 66, 36, 36),
   ].filter(Boolean);
   return segments.join("|");
