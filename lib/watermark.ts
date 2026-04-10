@@ -40,6 +40,17 @@ function buildImageWatermarkSegment(
   return `watermark/1/image/${imageBase64}/ws/${ws}/dissolve/${dissolve}/gravity/SouthEast/dx/${dx}/dy/${dy}`;
 }
 
+function buildUploadImageWatermarkSegment(
+  bucket: string,
+  region: string,
+  dissolve: number,
+  dx: number,
+  dy: number
+) {
+  const imageBase64 = toUrlSafeBase64(createPublicWatermarkImageUrl(bucket, region));
+  return `watermark/1/image/${imageBase64}/dissolve/${dissolve}/gravity/SouthEast/dx/${dx}/dy/${dy}`;
+}
+
 function buildTextWatermarkSegment(fontSize: number, dissolve: number, dx: number, dy: number) {
   const text = getWatermarkText().trim();
   if (!text) {
@@ -70,22 +81,26 @@ function buildDownloadWatermarkChain(bucket: string, region: string) {
   return segments.join("|");
 }
 
-// 用于 Pic-Operations 上传时生成衍生图（返回 rules 数组）
-export function buildDisplayPicRules(
-  bucket: string,
-  region: string,
-  displayKey: string,
-  downloadKey: string
-) {
+export function buildDisplayPicRules(bucket: string, region: string, displayKey: string, downloadKey: string) {
+  const displayWatermarkRule = buildUploadImageWatermarkSegment(bucket, region, 88, 10, 10);
+  const downloadWatermarkRule = buildUploadImageWatermarkSegment(bucket, region, 90, 12, 12);
   return [
     {
       fileid: `/${displayKey}`,
-      rule: `imageMogr2/thumbnail/2560x/quality/80/format/jpg|${buildDisplayWatermarkChain(bucket, region)}`,
+      rule: "imageMogr2/thumbnail/2560x/quality/80/format/jpg"
+    },
+    {
+      fileid: `/${displayKey}`,
+      rule: displayWatermarkRule
     },
     {
       fileid: `/${downloadKey}`,
-      rule: `imageMogr2/quality/92/format/jpg|${buildDownloadWatermarkChain(bucket, region)}`,
+      rule: "imageMogr2/quality/92/format/jpg"
     },
+    {
+      fileid: `/${downloadKey}`,
+      rule: downloadWatermarkRule
+    }
   ];
 }
 
