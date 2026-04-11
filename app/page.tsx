@@ -524,7 +524,7 @@ export default function HomePage() {
             marginBottom: 28,
           }}
         >
-          摄影师上传后即时可见。点击图片查看大图，长按图片即可保存到手机。
+          点击图片查看大图，长按图片即可保存到手机。
         </p>
 
         <div style={{ display: 'flex', gap: 0, flexWrap: 'wrap' }}>
