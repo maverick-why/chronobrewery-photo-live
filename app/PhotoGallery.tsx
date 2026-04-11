@@ -40,7 +40,6 @@ export function PhotoGallery() {
   const [source, setSource] = useState<"display" | "originals">("display");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [downloadingKey, setDownloadingKey] = useState("");
 
   async function loadPhotos() {
     setLoading(true);
@@ -59,27 +58,6 @@ export function PhotoGallery() {
       setError(message);
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function handleDownload(photo: PhotoItem) {
-    setDownloadingKey(photo.key);
-    try {
-      const response = await fetch(
-        `/api/download-url?key=${encodeURIComponent(photo.downloadKey)}&fallbackKey=${encodeURIComponent(
-          photo.originalKey
-        )}`
-      );
-      const data = (await response.json().catch(() => null)) as { ok?: boolean; url?: string; error?: string } | null;
-      if (!response.ok || !data?.url) {
-        throw new Error(data?.error || "生成下载链接失败");
-      }
-      window.open(data.url, "_blank", "noopener,noreferrer");
-    } catch (e) {
-      const message = e instanceof Error ? e.message : "下载失败";
-      alert(message);
-    } finally {
-      setDownloadingKey("");
     }
   }
 
@@ -139,7 +117,7 @@ export function PhotoGallery() {
                 <img
                   alt={photo.key}
                   loading="lazy"
-                  src={photo.displayUrl}
+                  src={photo.previewUrl}
                   style={{ display: "block", width: "100%", aspectRatio: "1 / 1", objectFit: "cover" }}
                 />
               </a>
@@ -150,14 +128,9 @@ export function PhotoGallery() {
                 <div className="muted" style={{ fontSize: 12 }}>
                   {formatSize(photo.size)}
                 </div>
-                <button
-                  className="btn btn-primary"
-                  disabled={downloadingKey === photo.key}
-                  onClick={() => void handleDownload(photo)}
-                  type="button"
-                >
-                  {downloadingKey === photo.key ? "生成中..." : "下载"}
-                </button>
+                <div className="muted" style={{ fontSize: 12 }}>
+                  长按保存到手机
+                </div>
               </div>
             </article>
           ))}

@@ -57,24 +57,6 @@ function groupByDate(photos: Photo[]): Record<string, Photo[]> {
 
 // ─── SVG Icons ────────────────────────────────────────────────────────────────
 
-function DownloadIcon({ size = 16, color = 'currentColor' }: { size?: number; color?: string }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke={color}
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M8 2v8M5 7l3 3 3-3" />
-      <path d="M2 13h12" />
-    </svg>
-  )
-}
-
 function RefreshIcon({ size = 14 }: { size?: number }) {
   return (
     <svg
@@ -160,12 +142,7 @@ function PhotoCard({
         >
           {formatTime(photo.uploadedAt)}
         </span>
-        <a
-          href={photo.displayUrl}
-          download
-          target="_blank"
-          rel="noreferrer"
-          onClick={(e) => e.stopPropagation()}
+        <span
           style={{
             fontSize: 11,
             fontWeight: 500,
@@ -173,15 +150,12 @@ function PhotoCard({
             borderRadius: 6,
             background: 'rgba(255,255,255,0.95)',
             color: '#111',
-            textDecoration: 'none',
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 5,
           }}
         >
-          <DownloadIcon size={11} color="#111" />
-          下载
-        </a>
+          长按保存到手机
+        </span>
       </div>
     </div>
   )
@@ -249,12 +223,7 @@ function Lightbox({
           {index + 1} / {photos.length}
         </span>
         <div style={{ display: 'flex', gap: 8 }}>
-          <a
-            href={p.displayUrl}
-            download
-            target="_blank"
-            rel="noreferrer"
-            onClick={(e) => e.stopPropagation()}
+          <span
             style={{
               fontSize: 13,
               fontWeight: 500,
@@ -262,15 +231,12 @@ function Lightbox({
               borderRadius: 8,
               background: '#fff',
               color: '#111',
-              textDecoration: 'none',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: 6,
             }}
           >
-            <DownloadIcon size={14} color="#111" />
-            下载高清版
-          </a>
+            长按保存到手机
+          </span>
           <button
             onClick={onClose}
             style={{
@@ -558,7 +524,7 @@ export default function HomePage() {
             marginBottom: 28,
           }}
         >
-          摄影师上传后即时可见。点击图片查看大图，或直接下载带水印高清版本。
+          摄影师上传后即时可见。点击图片查看大图，长按图片即可保存到手机。
         </p>
 
         <div style={{ display: 'flex', gap: 0, flexWrap: 'wrap' }}>
