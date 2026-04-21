@@ -2,6 +2,9 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 
+const DEFAULT_HERO_IMAGE_URL =
+  'https://chronobrewery-photo-1419349000.cos.ap-guangzhou.myqcloud.com/watermark/logo.png'
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Photo {
@@ -367,6 +370,7 @@ export default function HomePage() {
 
   const grouped = groupByDate(photos)
   const dateKeys = Object.keys(grouped)
+  const heroImageUrl = process.env.NEXT_PUBLIC_HERO_IMAGE_URL || DEFAULT_HERO_IMAGE_URL
 
   return (
     <>
@@ -492,6 +496,19 @@ export default function HomePage() {
           borderBottom: '0.5px solid var(--border)',
         }}
       >
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 22 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={heroImageUrl}
+            alt="ChronoBrewery 门头"
+            style={{
+              width: 'min(100%, 560px)',
+              height: 'auto',
+              display: 'block',
+              objectFit: 'contain',
+            }}
+          />
+        </div>
         <div
           style={{
             fontSize: 11,
