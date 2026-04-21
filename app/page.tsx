@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 
 const DEFAULT_HERO_IMAGE_URL =
-  'https://chronobrewery-photo-1419349000.cos.ap-guangzhou.myqcloud.com/watermark/logo.png'
+  '/无背景logo.png'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
