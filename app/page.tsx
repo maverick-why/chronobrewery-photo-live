@@ -494,6 +494,7 @@ export default function HomePage() {
         style={{
           padding: '44px 32px 28px',
           borderBottom: '0.5px solid var(--border)',
+          textAlign: 'center',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 22 }}>
@@ -539,12 +540,14 @@ export default function HomePage() {
             lineHeight: 1.65,
             maxWidth: 400,
             marginBottom: 28,
+            marginLeft: 'auto',
+            marginRight: 'auto',
           }}
         >
           点击图片查看大图，长按图片即可保存到手机。
         </p>
 
-        <div style={{ display: 'flex', gap: 0, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 0, flexWrap: 'wrap', justifyContent: 'center' }}>
           {[
             { n: loading ? '…' : String(photos.length), l: '张照片' },
             {
@@ -564,6 +567,7 @@ export default function HomePage() {
                 paddingRight: 28,
                 marginRight: 28,
                 borderRight: i < 2 ? '0.5px solid var(--border)' : 'none',
+                textAlign: 'center',
               }}
             >
               <div style={{ fontSize: 20, fontWeight: 500, letterSpacing: '-0.02em' }}>
