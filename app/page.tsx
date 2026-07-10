@@ -363,11 +363,12 @@ function Lightbox({
 
 // ─── Activity Info Block (design preview — content will move to /admin) ───────
 
-const INFO_TEXT = `营业时间：14:00–23:00
-地址：深圳市南山区沙河西路智谷产业园 F座107
-停车：园区地下车库 B1，蓝色车位免费2小时
-今日活动：精酿品鉴 × 现场爵士
-备注：18:30 后凭票入场`
+const INFO_TEXT = `活动时间：2026年8月15日 14:00–23:00
+地址：深圳市南山区沙河西路智谷产业园 F座107（高德、腾讯地图搜“时光酿造所”可直接导航）
+停车：所有来宾免费停车；如需停放地面车位，请提前报备车牌号，地面停车位数量有限，先到先得
+入场流程：签到领纪念杯（限量100只，独立编号）→ 拍照签名墙 → 逛产品海报墙 → 正门入场
+今晚你可以：品尝首批酒款 · 与酿酒师/主理人交流 · 参与现场互动 · 签名墙留言
+温馨提示：现场照片/视频由摄影师拍摄，后续可能用于品牌宣传及媒体报道，如不希望自己出镜或有其他顾虑，请现场告知摄影师或工作人员；纪念杯遗失不补发；酒后请勿驾车，未成年人禁止饮酒；如需代驾/饮用水请联系工作人员`
 
 const TODAY_LABEL = new Date().toLocaleDateString('zh-CN', {
   year: 'numeric',
@@ -408,7 +409,7 @@ function InfoBlockA({ open, onToggle }: { open: boolean; onToggle: () => void })
           lineHeight: 1.9,
           color: 'var(--text)',
           whiteSpace: 'pre-line',
-          maxHeight: open ? 200 : 0,
+          maxHeight: open ? 2000 : 0,
           overflow: 'hidden',
           transition: 'max-height 0.25s ease',
           marginTop: open ? 6 : 0,
@@ -444,7 +445,7 @@ function InfoBlockB({ open, onToggle }: { open: boolean; onToggle: () => void })
           lineHeight: 1.9,
           color: '#e9e2d3',
           whiteSpace: 'pre-line',
-          maxHeight: open ? 200 : 0,
+          maxHeight: open ? 2000 : 0,
           overflow: 'hidden',
           transition: 'max-height 0.25s ease',
         }}
@@ -502,7 +503,7 @@ function InfoBlockC({ open, onToggle }: { open: boolean; onToggle: () => void })
             lineHeight: 1.9,
             color: 'var(--text)',
             whiteSpace: 'pre-line',
-            maxHeight: open ? 200 : 0,
+            maxHeight: open ? 2000 : 0,
             overflow: 'hidden',
             transition: 'max-height 0.25s ease',
             marginTop: open ? 6 : 0,
