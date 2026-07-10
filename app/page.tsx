@@ -58,6 +58,32 @@ function groupByDate(photos: Photo[]): Record<string, Photo[]> {
   }, {})
 }
 
+// ─── Countdown ────────────────────────────────────────────────────────────────
+
+const EVENT_DATETIME = new Date('2026-08-15T14:00:00+08:00')
+
+function useCountdown(target: Date) {
+  const [remaining, setRemaining] = useState<number | null>(null)
+  useEffect(() => {
+    const tick = () => setRemaining(target.getTime() - Date.now())
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [target])
+  return remaining
+}
+
+function formatCountdown(ms: number) {
+  if (ms <= 0) return '已开场'
+  const totalSeconds = Math.floor(ms / 1000)
+  const days = Math.floor(totalSeconds / 86400)
+  const hours = Math.floor((totalSeconds % 86400) / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${days}天 ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+}
+
 // ─── SVG Icons ────────────────────────────────────────────────────────────────
 
 function RefreshIcon({ size = 14 }: { size?: number }) {
@@ -539,7 +565,6 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [lbIndex, setLbIndex] = useState<number | null>(null)
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const fetchPhotos = useCallback(async () => {
@@ -548,7 +573,6 @@ export default function HomePage() {
       if (!res.ok) throw new Error('fetch failed')
       const data: ApiResponse = await res.json()
       setPhotos(data.photos)
-      setLastUpdated(new Date())
       setError(false)
     } catch {
       setError(true)
@@ -568,6 +592,7 @@ export default function HomePage() {
   const grouped = groupByDate(photos)
   const dateKeys = Object.keys(grouped)
   const heroImageUrl = process.env.NEXT_PUBLIC_HERO_IMAGE_URL || DEFAULT_HERO_IMAGE_URL
+  const countdownMs = useCountdown(EVENT_DATETIME)
 
   return (
     <>
@@ -748,14 +773,12 @@ export default function HomePage() {
           {[
             { n: loading ? '…' : String(photos.length), l: '张照片' },
             {
-              n: photos.length > 0 ? formatDate(photos[photos.length - 1].uploadedAt) : '—',
+              n: formatDate(EVENT_DATETIME.toISOString()),
               l: '活动日期',
             },
             {
-              n: lastUpdated
-                ? lastUpdated.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
-                : '—',
-              l: '上次刷新',
+              n: countdownMs === null ? '—' : formatCountdown(countdownMs),
+              l: '距开场',
             },
           ].map((s, i) => (
             <div
