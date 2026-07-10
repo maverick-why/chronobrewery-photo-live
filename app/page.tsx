@@ -685,8 +685,6 @@ export default function HomePage() {
         </div>
       </nav>
 
-      <ActivityInfo />
-
       {/* ── Hero ── */}
       <div
         className="fade-in"
@@ -777,6 +775,8 @@ export default function HomePage() {
           ))}
         </div>
       </div>
+
+      <ActivityInfo />
 
       {/* ── Toolbar ── */}
       <div
