@@ -19,3 +19,9 @@ pnpm-debug.log*
 
 # macOS
 .DS_Store
+
+# Superpowers brainstorming scratch
+.superpowers/
+
+# Local tool config
+.claude/

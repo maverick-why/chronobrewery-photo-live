@@ -335,6 +335,203 @@ function Lightbox({
   )
 }
 
+// ─── Activity Info Block (design preview — content will move to /admin) ───────
+
+const INFO_TEXT = `营业时间：14:00–23:00
+地址：深圳市南山区沙河西路智谷产业园 F座107
+停车：园区地下车库 B1，蓝色车位免费2小时
+今日活动：精酿品鉴 × 现场爵士
+备注：18:30 后凭票入场`
+
+const TODAY_LABEL = new Date().toLocaleDateString('zh-CN', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+})
+
+type InfoStyle = 'a' | 'b' | 'c'
+
+function InfoBlockA({ open, onToggle }: { open: boolean; onToggle: () => void }) {
+  const [firstLine, ...restLines] = INFO_TEXT.split('\n')
+  return (
+    <div
+      onClick={onToggle}
+      style={{
+        padding: '18px 32px',
+        borderBottom: '0.5px solid var(--border)',
+        cursor: 'pointer',
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: 11, color: 'var(--text-3)', letterSpacing: '0.05em' }}>
+          今天 · {TODAY_LABEL}
+        </span>
+        <span style={{ fontSize: 11, color: 'var(--text-2)', display: 'flex', alignItems: 'center', gap: 4 }}>
+          活动信息
+          <span style={{ display: 'inline-block', transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }}>
+            ⌄
+          </span>
+        </span>
+      </div>
+      {!open && (
+        <div style={{ fontSize: 13, color: 'var(--text)', marginTop: 8 }}>{firstLine}</div>
+      )}
+      <div
+        style={{
+          fontSize: 13,
+          lineHeight: 1.9,
+          color: 'var(--text)',
+          whiteSpace: 'pre-line',
+          maxHeight: open ? 200 : 0,
+          overflow: 'hidden',
+          transition: 'max-height 0.25s ease',
+          marginTop: open ? 6 : 0,
+        }}
+      >
+        {restLines.join('\n')}
+      </div>
+    </div>
+  )
+}
+
+function InfoBlockB({ open, onToggle }: { open: boolean; onToggle: () => void }) {
+  const [firstLine, ...restLines] = INFO_TEXT.split('\n')
+  return (
+    <div
+      onClick={onToggle}
+      style={{
+        padding: '22px 32px',
+        cursor: 'pointer',
+        background: 'linear-gradient(160deg,#1a1712,#2b2318)',
+        color: '#f2ead9',
+      }}
+    >
+      <div style={{ fontSize: 10, letterSpacing: '0.15em', color: '#c9a35f', textTransform: 'uppercase', marginBottom: 10 }}>
+        ChronoBrewery · 时光酿造所
+      </div>
+      {!open && (
+        <div style={{ fontSize: 13, color: '#e9e2d3' }}>{firstLine}</div>
+      )}
+      <div
+        style={{
+          fontSize: 13,
+          lineHeight: 1.9,
+          color: '#e9e2d3',
+          whiteSpace: 'pre-line',
+          maxHeight: open ? 200 : 0,
+          overflow: 'hidden',
+          transition: 'max-height 0.25s ease',
+        }}
+      >
+        {restLines.join('\n')}
+      </div>
+      <div style={{ marginTop: 10, fontSize: 11, color: '#c9a35f', display: 'flex', justifyContent: 'space-between' }}>
+        <span>今天 · {TODAY_LABEL}</span>
+        <span>{open ? '收起' : '展开'}</span>
+      </div>
+    </div>
+  )
+}
+
+function InfoBlockC({ open, onToggle }: { open: boolean; onToggle: () => void }) {
+  const [firstLine, ...restLines] = INFO_TEXT.split('\n')
+  return (
+    <div
+      onClick={onToggle}
+      style={{
+        padding: '18px 32px',
+        borderBottom: '0.5px solid var(--border)',
+        display: 'flex',
+        gap: 14,
+        alignItems: 'flex-start',
+        cursor: 'pointer',
+      }}
+    >
+      <div
+        style={{
+          width: 30,
+          height: 30,
+          borderRadius: 8,
+          background: 'var(--text)',
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'var(--bg)',
+          fontSize: 13,
+        }}
+      >
+        i
+      </div>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontSize: 11, color: 'var(--text-3)', letterSpacing: '0.05em' }}>
+          今天 · {TODAY_LABEL}
+        </div>
+        {!open && (
+          <div style={{ fontSize: 13, color: 'var(--text)', marginTop: 6 }}>{firstLine}</div>
+        )}
+        <div
+          style={{
+            fontSize: 13,
+            lineHeight: 1.9,
+            color: 'var(--text)',
+            whiteSpace: 'pre-line',
+            maxHeight: open ? 200 : 0,
+            overflow: 'hidden',
+            transition: 'max-height 0.25s ease',
+            marginTop: open ? 6 : 0,
+          }}
+        >
+          {restLines.join('\n')}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ActivityInfo() {
+  const [style, setStyle] = useState<InfoStyle>('a')
+  const [open, setOpen] = useState(false)
+
+  return (
+    <>
+      {/* Preview-only style switcher — removed once a style is picked */}
+      <div
+        style={{
+          display: 'flex',
+          gap: 6,
+          padding: '8px 32px',
+          background: '#fffbe6',
+          borderBottom: '0.5px solid var(--border)',
+          fontSize: 11,
+        }}
+      >
+        <span style={{ color: '#997a00', marginRight: 4 }}>预览方案：</span>
+        {(['a', 'b', 'c'] as InfoStyle[]).map((s) => (
+          <button
+            key={s}
+            onClick={() => setStyle(s)}
+            style={{
+              padding: '3px 10px',
+              borderRadius: 6,
+              border: '0.5px solid var(--border)',
+              background: style === s ? '#111' : 'transparent',
+              color: style === s ? '#fff' : 'var(--text-2)',
+              cursor: 'pointer',
+              textTransform: 'uppercase',
+            }}
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+      {style === 'a' && <InfoBlockA open={open} onToggle={() => setOpen((o) => !o)} />}
+      {style === 'b' && <InfoBlockB open={open} onToggle={() => setOpen((o) => !o)} />}
+      {style === 'c' && <InfoBlockC open={open} onToggle={() => setOpen((o) => !o)} />}
+    </>
+  )
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
@@ -487,6 +684,8 @@ export default function HomePage() {
           </a>
         </div>
       </nav>
+
+      <ActivityInfo />
 
       {/* ── Hero ── */}
       <div
