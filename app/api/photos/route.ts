@@ -6,6 +6,7 @@ import {
   mapOriginalToDisplayKey,
   mapOriginalToDownloadKey
 } from "@/lib/photo-keys";
+import { readDateOverrides } from "@/lib/photo-dates";
 import { buildDisplayWatermarkRule } from "@/lib/watermark";
 
 const SIGN_EXPIRES_SECONDS = 60 * 30;
@@ -141,8 +142,14 @@ export async function GET(request: Request) {
       objects = objects.filter((item) => isDirectOriginalObjectKey(item.Key, activitySlug));
     }
 
+    const dateOverrides = await readDateOverrides(cos, config, activitySlug);
+
     const photos = objects
-      .map((item) => ({ key: item.Key, uploadedAt: item.LastModified, size: toNumber(item.Size) }))
+      .map((item) => {
+        const originalKey = source === "display" ? mapDisplayToOriginalKey(item.Key, activitySlug) : item.Key;
+        const uploadedAt = dateOverrides[originalKey] || item.LastModified;
+        return { key: item.Key, uploadedAt, size: toNumber(item.Size) };
+      })
       .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
       .slice(0, limit)
       .map((item) => buildPhoto(source, item.key, item.uploadedAt, item.size, activitySlug, cos, config));
