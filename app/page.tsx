@@ -5,6 +5,8 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 const DEFAULT_HERO_IMAGE_URL =
   '/hero-storefront.jpg'
 
+const PHOTO_PREVIEW_COUNT = 9
+
 const PAGE_CSS = `
   :root {
     --bg: #f0f0ee;
@@ -415,6 +417,15 @@ function NoticeIcon() {
   )
 }
 
+function StoryIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2.5 3.5c1.5-1 3.5-1 5.5 0 2-1 4-1 5.5 0v9c-1.5-1-3.5-1-5.5 0-2-1-4-1-5.5 0v-9z" />
+      <path d="M8 3.5v9" />
+    </svg>
+  )
+}
+
 function AlbumIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -445,11 +456,16 @@ function ChevronIcon({ open }: { open: boolean }) {
 
 // ─── Activity Notice Card ───────────────────────────────────────────────────
 
-const INFO_SECTIONS: { label: string; body: string }[] = [
+const INFO_SECTIONS: { label: string; body: string; href?: string }[] = [
   { label: '活动时间', body: '2026年8月15日 14:00–23:00' },
   {
     label: '地址',
-    body: '深圳市南山区沙河西路智谷产业园 F座107（高德、腾讯地图搜“时光酿造所”可直接导航）',
+    body: '深圳市南山区沙河西路智谷产业园 F座107',
+  },
+  {
+    label: '如何抵达',
+    body: '点击打开高德地图，一键导航到店',
+    href: 'https://www.amap.com/search?query=%E6%97%B6%E5%85%89%E9%85%BF%E9%80%A0%E6%89%80',
   },
   {
     label: '停车',
@@ -509,7 +525,7 @@ function NoticeCard() {
           <NoticeIcon />
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>活动须知</div>
+          <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>关于开业活动</div>
           <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>
             {INFO_SECTIONS.length} 条提示
           </div>
@@ -546,8 +562,176 @@ function NoticeCard() {
               >
                 {section.label}
               </div>
-              <div style={{ fontSize: 13, lineHeight: 1.7, color: 'var(--text-2)' }}>{section.body}</div>
+              {section.href ? (
+                <a
+                  href={section.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontSize: 13,
+                    lineHeight: 1.7,
+                    color: '#0f3f87',
+                    fontWeight: 500,
+                    textDecoration: 'none',
+                  }}
+                >
+                  {section.body}
+                  <span aria-hidden="true">→</span>
+                </a>
+              ) : (
+                <div style={{ fontSize: 13, lineHeight: 1.7, color: 'var(--text-2)' }}>{section.body}</div>
+              )}
             </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── About Card ─────────────────────────────────────────────────────────────
+
+const STORY_SECTIONS: { title: string; body: string }[] = [
+  {
+    title: '名字由来',
+    body: '我们叫「时光酿造所」，英文 ChronoBrewery。没什么复杂的寓意——时间就是最大的成本，我更愿意把时间交给一杯酒，让它自己发生，而不是被催熟。我常说一句话：Brew Your Life。',
+  },
+  {
+    title: '从香港到深圳',
+    body: '最早只是疫情期间在香港家里闷出来的手艺，几个白色大桶堆在角落，咕噜咕噜冒泡。后来带着酒去社区市集，办起 Beer Run——不比成绩，就是找个理由，把喜欢跑步和喜欢喝酒的人凑到同一个下午。\n\n我本来想把店开在愉景湾，谈了一年多，最后还是没成——物业说店名不能带「DB」，可这个品牌本来就是从那里长出来的。后来，我把目光转向深圳。选址的时候，我想清楚了一件事：比起路过的人，我更在意那些愿意专程来的人。',
+  },
+  {
+    title: '我们的愿景',
+    body: '我心里一直有家参照的店，在上海，叫杰克酒窝——不需要被组织的热闹，你走进去，自然就融进去了。我也想做这样的地方：一个人能安静坐完一杯酒，和朋友在一起，沉默也不觉得尴尬。\n\n发酵罐就摆在你能看到的地方，从酿造到入杯，不到 5 米。这是「前店后厂」，也是我让你相信这杯酒是真的的方式——它真的在发酵，真的会有波动，也真的可能失败。\n\n希望你走进来的第一感觉，不是"终于来了"，而是——它一直就该在这里。',
+  },
+]
+
+function StoryRow({
+  story,
+  open,
+  onToggle,
+}: {
+  story: { title: string; body: string }
+  open: boolean
+  onToggle: () => void
+}) {
+  return (
+    <div style={{ borderTop: '0.5px solid var(--border)' }}>
+      <div
+        onClick={onToggle}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 10,
+          padding: '14px 0',
+          cursor: 'pointer',
+        }}
+      >
+        <span style={{ fontSize: 14, fontWeight: 500 }}>{story.title}</span>
+        <span style={{ color: 'var(--text-3)', flexShrink: 0 }}>
+          <ChevronIcon open={open} />
+        </span>
+      </div>
+      <div
+        style={{
+          maxHeight: open ? 2000 : 0,
+          overflow: 'hidden',
+          transition: 'max-height 0.25s ease',
+        }}
+      >
+        <div
+          style={{
+            fontSize: 13,
+            lineHeight: 1.9,
+            color: 'var(--text-2)',
+            whiteSpace: 'pre-line',
+            paddingBottom: 16,
+          }}
+        >
+          {story.body}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function AboutCard() {
+  const [open, setOpen] = useState(false)
+  const [openStories, setOpenStories] = useState<Set<number>>(new Set())
+
+  function toggleStory(index: number) {
+    setOpenStories((prev) => {
+      const next = new Set(prev)
+      if (next.has(index)) {
+        next.delete(index)
+      } else {
+        next.add(index)
+      }
+      return next
+    })
+  }
+
+  return (
+    <div
+      className="card"
+      style={{
+        margin: '16px 16px 0',
+        borderRadius: 16,
+        background: 'var(--card)',
+        border: '0.5px solid var(--border)',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        onClick={() => setOpen((o) => !o)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          padding: '16px 18px',
+          cursor: 'pointer',
+        }}
+      >
+        <div
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 10,
+            background: '#e6efe9',
+            color: '#3a6b52',
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <StoryIcon />
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>关于时光酿造所</div>
+          <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>
+            {STORY_SECTIONS.length} 个故事
+          </div>
+        </div>
+        <div style={{ color: 'var(--text-3)' }}>
+          <ChevronIcon open={open} />
+        </div>
+      </div>
+      <div
+        style={{
+          maxHeight: open ? 4000 : 0,
+          overflow: 'hidden',
+          transition: 'max-height 0.25s ease',
+        }}
+      >
+        <div style={{ padding: '0 18px 4px' }}>
+          {STORY_SECTIONS.map((story, i) => (
+            <StoryRow key={story.title} story={story} open={openStories.has(i)} onToggle={() => toggleStory(i)} />
           ))}
         </div>
       </div>
@@ -586,8 +770,11 @@ export default function HomePage() {
     }
   }, [fetchPhotos])
 
-  const grouped = groupByDate(photos)
+  const [showAllPhotos, setShowAllPhotos] = useState(false)
+  const visiblePhotos = showAllPhotos ? photos : photos.slice(0, PHOTO_PREVIEW_COUNT)
+  const grouped = groupByDate(visiblePhotos)
   const dateKeys = Object.keys(grouped)
+  const hasMorePhotos = !showAllPhotos && photos.length > PHOTO_PREVIEW_COUNT
   const heroImageUrl = process.env.NEXT_PUBLIC_HERO_IMAGE_URL || DEFAULT_HERO_IMAGE_URL
   const countdownMs = useCountdown(EVENT_DATETIME)
 
@@ -784,6 +971,8 @@ export default function HomePage() {
 
       <NoticeCard />
 
+      <AboutCard />
+
       {/* ── Album Card ── */}
       <div
         className="card"
@@ -957,6 +1146,27 @@ export default function HomePage() {
             )
           })
         }
+
+        {hasMorePhotos && (
+          <button
+            onClick={() => setShowAllPhotos(true)}
+            style={{
+              display: 'block',
+              width: '100%',
+              marginTop: 4,
+              padding: '11px 0',
+              fontSize: 13,
+              fontWeight: 500,
+              color: 'var(--text-2)',
+              background: 'var(--surface)',
+              border: '0.5px solid var(--border)',
+              borderRadius: 10,
+              cursor: 'pointer',
+            }}
+          >
+            查看更多照片（共 {photos.length} 张）
+          </button>
+        )}
       </main>
       </div>
 
