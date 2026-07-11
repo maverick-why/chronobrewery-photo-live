@@ -456,7 +456,8 @@ function ChevronIcon({ open }: { open: boolean }) {
 
 // ─── Activity Notice Card ───────────────────────────────────────────────────
 
-const AMAP_URL = 'https://www.amap.com/search?query=%E6%97%B6%E5%85%89%E9%85%BF%E9%80%A0%E6%89%80'
+const TENCENT_MAP_URL =
+  'https://map.wap.qq.com/online/h5-poi-detail-out/index.html?uid=6019755333853441698&s=1&coord=113.952725%2C22.570295&centercoord=113.952725%2C22.570295&m=113.952725%2C22.570295&c=113.952725%2C22.570295&n=%E6%97%B6%E5%85%89%E9%85%BF%E9%80%A0%E6%89%80chronobrewery&pt=0&a=%E5%B9%BF%E4%B8%9C%E7%9C%81%E6%B7%B1%E5%9C%B3%E5%B8%82%E5%8D%97%E5%B1%B1%E5%8C%BA%E6%B2%99%E6%B2%B3%E8%A5%BF%E8%B7%AF%E4%B8%8E%E9%BE%99%E7%8F%A0%E5%A4%A7%E9%81%93%E4%BA%A4%E5%8F%89%E5%8F%A3%E8%A5%BF%E5%8C%97%E6%96%B9%E5%90%91288%E7%B1%B3%E5%B7%A6%E5%8F%B3&i=6019755333853441698&p=18123711351&fromSource=share&channelId=null-6019755333853441698-poi-more_h5#/Food'
 
 type InfoSection = {
   label: string
@@ -477,12 +478,12 @@ const INFO_SECTIONS: InfoSection[] = [
       {
         label: '打车 / 网约车',
         body: '导航到「时光酿造所」或定位后，在浙商银行路口下车，往前步行30米，经过邮储银行后左转，就能看到我们的侧招。',
-        href: AMAP_URL,
+        href: TENCENT_MAP_URL,
       },
       {
         label: '自驾',
         body: '导航到店，提前告知车牌号，可以停在地面路边（邮储银行外），车位有限，先到先得。',
-        href: AMAP_URL,
+        href: TENCENT_MAP_URL,
       },
       {
         label: '公共交通',
@@ -606,7 +607,7 @@ function NoticeCard() {
                             marginTop: 4,
                           }}
                         >
-                          高德地图一键导航
+                          腾讯地图一键导航
                           <span aria-hidden="true">→</span>
                         </a>
                       )}
