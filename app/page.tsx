@@ -456,7 +456,16 @@ function ChevronIcon({ open }: { open: boolean }) {
 
 // ─── Activity Notice Card ───────────────────────────────────────────────────
 
-const INFO_SECTIONS: { label: string; body: string; href?: string }[] = [
+const AMAP_URL = 'https://www.amap.com/search?query=%E6%97%B6%E5%85%89%E9%85%BF%E9%80%A0%E6%89%80'
+
+type InfoSection = {
+  label: string
+  body?: string
+  href?: string
+  sub?: { label: string; body: string; href?: string }[]
+}
+
+const INFO_SECTIONS: InfoSection[] = [
   { label: '活动时间', body: '2026年8月15日 14:00–23:00' },
   {
     label: '地址',
@@ -464,12 +473,22 @@ const INFO_SECTIONS: { label: string; body: string; href?: string }[] = [
   },
   {
     label: '如何抵达',
-    body: '点击打开高德地图，一键导航到店',
-    href: 'https://www.amap.com/search?query=%E6%97%B6%E5%85%89%E9%85%BF%E9%80%A0%E6%89%80',
-  },
-  {
-    label: '停车',
-    body: '所有来宾免费停车；如需停放地面车位，请提前报备车牌号，地面停车位数量有限，先到先得',
+    sub: [
+      {
+        label: '打车 / 网约车',
+        body: '导航到「时光酿造所」或定位后，在浙商银行路口下车，往前步行30米，经过邮储银行后左转，就能看到我们的侧招。',
+        href: AMAP_URL,
+      },
+      {
+        label: '自驾',
+        body: '导航到店，提前告知车牌号，可以停在地面路边（邮储银行外），车位有限，先到先得。',
+        href: AMAP_URL,
+      },
+      {
+        label: '公共交通',
+        body: '地铁7号线茶光站B出口，步行约589米到店。',
+      },
+    ],
   },
   {
     label: '入场流程',
@@ -562,7 +581,39 @@ function NoticeCard() {
               >
                 {section.label}
               </div>
-              {section.href ? (
+              {section.sub ? (
+                <div className="stack" style={{ gap: 10 }}>
+                  {section.sub.map((item) => (
+                    <div key={item.label}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)', marginBottom: 2 }}>
+                        {item.label}
+                      </div>
+                      <div style={{ fontSize: 13, lineHeight: 1.7, color: 'var(--text-2)' }}>{item.body}</div>
+                      {item.href && (
+                        <a
+                          href={item.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            fontSize: 12,
+                            color: '#0f3f87',
+                            fontWeight: 500,
+                            textDecoration: 'none',
+                            marginTop: 4,
+                          }}
+                        >
+                          高德地图一键导航
+                          <span aria-hidden="true">→</span>
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : section.href ? (
                 <a
                   href={section.href}
                   target="_blank"
