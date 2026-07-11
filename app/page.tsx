@@ -3,7 +3,49 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 
 const DEFAULT_HERO_IMAGE_URL =
-  '/无背景logo.png'
+  '/hero-storefront.jpg'
+
+const PAGE_CSS = `
+  :root {
+    --bg: #f0f0ee;
+    --card: #ffffff;
+    --surface: #f0efed;
+    --border: rgba(0,0,0,0.08);
+    --border-hover: rgba(0,0,0,0.18);
+    --text: #111;
+    --text-2: #555;
+    --text-3: #999;
+    --nav-bg: rgba(250,250,250,0.88);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0b0b0c;
+      --card: #1c1c1e;
+      --surface: #1c1c1e;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.2);
+      --text: #f0f0f0;
+      --text-2: #aaa;
+      --text-3: #555;
+      --nav-bg: rgba(17,17,17,0.88);
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); }
+  body {
+    font-family: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  @keyframes fadein {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in { animation: fadein 0.4s ease both; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spin { animation: spin 0.8s linear infinite; display: inline-block; }
+`
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -361,201 +403,155 @@ function Lightbox({
   )
 }
 
-// ─── Activity Info Block (design preview — content will move to /admin) ───────
+// ─── Icons ────────────────────────────────────────────────────────────────────
 
-const INFO_TEXT = `活动时间：2026年8月15日 14:00–23:00
-地址：深圳市南山区沙河西路智谷产业园 F座107（高德、腾讯地图搜“时光酿造所”可直接导航）
-停车：所有来宾免费停车；如需停放地面车位，请提前报备车牌号，地面停车位数量有限，先到先得
-入场流程：签到领纪念杯（限量100只，独立编号）→ 拍照签名墙 → 逛产品海报墙 → 正门入场
-今晚你可以：品尝首批酒款 · 与酿酒师/主理人交流 · 参与现场互动 · 签名墙留言
-温馨提示：现场照片/视频由摄影师拍摄，后续可能用于品牌宣传及媒体报道，如不希望自己出镜或有其他顾虑，请现场告知摄影师或工作人员；纪念杯遗失不补发；酒后请勿驾车，未成年人禁止饮酒；如需代驾/饮用水请联系工作人员`
-
-const TODAY_LABEL = new Date().toLocaleDateString('zh-CN', {
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-})
-
-type InfoStyle = 'a' | 'b' | 'c'
-
-function InfoBlockA({ open, onToggle }: { open: boolean; onToggle: () => void }) {
-  const [firstLine, ...restLines] = INFO_TEXT.split('\n')
+function NoticeIcon() {
   return (
-    <div
-      onClick={onToggle}
-      style={{
-        padding: '18px 32px',
-        borderBottom: '0.5px solid var(--border)',
-        cursor: 'pointer',
-      }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: 11, color: 'var(--text-3)', letterSpacing: '0.05em' }}>
-          今天 · {TODAY_LABEL}
-        </span>
-        <span style={{ fontSize: 11, color: 'var(--text-2)', display: 'flex', alignItems: 'center', gap: 4 }}>
-          活动信息
-          <span style={{ display: 'inline-block', transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }}>
-            ⌄
-          </span>
-        </span>
-      </div>
-      {!open && (
-        <div style={{ fontSize: 13, color: 'var(--text)', marginTop: 8 }}>{firstLine}</div>
-      )}
-      <div
-        style={{
-          fontSize: 13,
-          lineHeight: 1.9,
-          color: 'var(--text)',
-          whiteSpace: 'pre-line',
-          maxHeight: open ? 2000 : 0,
-          overflow: 'hidden',
-          transition: 'max-height 0.25s ease',
-          marginTop: open ? 6 : 0,
-        }}
-      >
-        {restLines.join('\n')}
-      </div>
-    </div>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="2.5" width="10" height="12" rx="1.5" />
+      <path d="M6 2.5V1.5a1 1 0 011-1h2a1 1 0 011 1v1" />
+      <path d="M6 7h4M6 9.5h4M6 12h2.5" />
+    </svg>
   )
 }
 
-function InfoBlockB({ open, onToggle }: { open: boolean; onToggle: () => void }) {
-  const [firstLine, ...restLines] = INFO_TEXT.split('\n')
+function AlbumIcon() {
   return (
-    <div
-      onClick={onToggle}
-      style={{
-        padding: '22px 32px',
-        cursor: 'pointer',
-        background: 'linear-gradient(160deg,#1a1712,#2b2318)',
-        color: '#f2ead9',
-      }}
-    >
-      <div style={{ fontSize: 10, letterSpacing: '0.15em', color: '#c9a35f', textTransform: 'uppercase', marginBottom: 10 }}>
-        ChronoBrewery · 时光酿造所
-      </div>
-      {!open && (
-        <div style={{ fontSize: 13, color: '#e9e2d3' }}>{firstLine}</div>
-      )}
-      <div
-        style={{
-          fontSize: 13,
-          lineHeight: 1.9,
-          color: '#e9e2d3',
-          whiteSpace: 'pre-line',
-          maxHeight: open ? 2000 : 0,
-          overflow: 'hidden',
-          transition: 'max-height 0.25s ease',
-        }}
-      >
-        {restLines.join('\n')}
-      </div>
-      <div style={{ marginTop: 10, fontSize: 11, color: '#c9a35f', display: 'flex', justifyContent: 'space-between' }}>
-        <span>今天 · {TODAY_LABEL}</span>
-        <span>{open ? '收起' : '展开'}</span>
-      </div>
-    </div>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" />
+      <circle cx="5" cy="6" r="1.25" />
+      <path d="M14 10.5l-3.5-3-4 3.5-2-1.5-2.5 2" />
+    </svg>
   )
 }
 
-function InfoBlockC({ open, onToggle }: { open: boolean; onToggle: () => void }) {
-  const [firstLine, ...restLines] = INFO_TEXT.split('\n')
+function ChevronIcon({ open }: { open: boolean }) {
   return (
-    <div
-      onClick={onToggle}
-      style={{
-        padding: '18px 32px',
-        borderBottom: '0.5px solid var(--border)',
-        display: 'flex',
-        gap: 14,
-        alignItems: 'flex-start',
-        cursor: 'pointer',
-      }}
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }}
     >
-      <div
-        style={{
-          width: 30,
-          height: 30,
-          borderRadius: 8,
-          background: 'var(--text)',
-          flexShrink: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'var(--bg)',
-          fontSize: 13,
-        }}
-      >
-        i
-      </div>
-      <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 11, color: 'var(--text-3)', letterSpacing: '0.05em' }}>
-          今天 · {TODAY_LABEL}
-        </div>
-        {!open && (
-          <div style={{ fontSize: 13, color: 'var(--text)', marginTop: 6 }}>{firstLine}</div>
-        )}
-        <div
-          style={{
-            fontSize: 13,
-            lineHeight: 1.9,
-            color: 'var(--text)',
-            whiteSpace: 'pre-line',
-            maxHeight: open ? 2000 : 0,
-            overflow: 'hidden',
-            transition: 'max-height 0.25s ease',
-            marginTop: open ? 6 : 0,
-          }}
-        >
-          {restLines.join('\n')}
-        </div>
-      </div>
-    </div>
+      <path d="M4 6l4 4 4-4" />
+    </svg>
   )
 }
 
-function ActivityInfo() {
-  const [style, setStyle] = useState<InfoStyle>('a')
+// ─── Activity Notice Card ───────────────────────────────────────────────────
+
+const INFO_SECTIONS: { label: string; body: string }[] = [
+  { label: '活动时间', body: '2026年8月15日 14:00–23:00' },
+  {
+    label: '地址',
+    body: '深圳市南山区沙河西路智谷产业园 F座107（高德、腾讯地图搜“时光酿造所”可直接导航）',
+  },
+  {
+    label: '停车',
+    body: '所有来宾免费停车；如需停放地面车位，请提前报备车牌号，地面停车位数量有限，先到先得',
+  },
+  {
+    label: '入场流程',
+    body: '签到领纪念杯（限量100只，独立编号）→ 拍照签名墙 → 逛产品海报墙 → 正门入场',
+  },
+  {
+    label: '今晚你可以',
+    body: '品尝首批酒款 · 与酿酒师/主理人交流 · 参与现场互动 · 签名墙留言',
+  },
+  {
+    label: '温馨提示',
+    body: '现场照片/视频由摄影师拍摄，后续可能用于品牌宣传及媒体报道，如不希望自己出镜或有其他顾虑，请现场告知摄影师或工作人员；纪念杯遗失不补发；酒后请勿驾车，未成年人禁止饮酒；如需代驾/饮用水请联系工作人员',
+  },
+]
+
+function NoticeCard() {
   const [open, setOpen] = useState(false)
 
   return (
-    <>
-      {/* Preview-only style switcher — removed once a style is picked */}
+    <div
+      className="card"
+      style={{
+        margin: '16px 16px 0',
+        borderRadius: 16,
+        background: 'var(--card)',
+        border: '0.5px solid var(--border)',
+        overflow: 'hidden',
+      }}
+    >
       <div
+        onClick={() => setOpen((o) => !o)}
         style={{
           display: 'flex',
-          gap: 6,
-          padding: '8px 32px',
-          background: '#fffbe6',
-          borderBottom: '0.5px solid var(--border)',
-          fontSize: 11,
+          alignItems: 'center',
+          gap: 12,
+          padding: '16px 18px',
+          cursor: 'pointer',
         }}
       >
-        <span style={{ color: '#997a00', marginRight: 4 }}>预览方案：</span>
-        {(['a', 'b', 'c'] as InfoStyle[]).map((s) => (
-          <button
-            key={s}
-            onClick={() => setStyle(s)}
-            style={{
-              padding: '3px 10px',
-              borderRadius: 6,
-              border: '0.5px solid var(--border)',
-              background: style === s ? '#111' : 'transparent',
-              color: style === s ? '#fff' : 'var(--text-2)',
-              cursor: 'pointer',
-              textTransform: 'uppercase',
-            }}
-          >
-            {s}
-          </button>
-        ))}
+        <div
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 10,
+            background: '#f6e9c9',
+            color: '#96731f',
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <NoticeIcon />
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>活动须知</div>
+          <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>
+            {INFO_SECTIONS.length} 条提示
+          </div>
+        </div>
+        <div style={{ color: 'var(--text-3)' }}>
+          <ChevronIcon open={open} />
+        </div>
       </div>
-      {style === 'a' && <InfoBlockA open={open} onToggle={() => setOpen((o) => !o)} />}
-      {style === 'b' && <InfoBlockB open={open} onToggle={() => setOpen((o) => !o)} />}
-      {style === 'c' && <InfoBlockC open={open} onToggle={() => setOpen((o) => !o)} />}
-    </>
+      <div
+        style={{
+          maxHeight: open ? 2000 : 0,
+          overflow: 'hidden',
+          transition: 'max-height 0.25s ease',
+        }}
+      >
+        <div style={{ padding: '0 18px 18px' }}>
+          {INFO_SECTIONS.map((section, i) => (
+            <div
+              key={section.label}
+              style={{
+                paddingTop: 14,
+                marginTop: i === 0 ? 0 : 14,
+                borderTop: i === 0 ? 'none' : '0.5px solid var(--border)',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 10,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: 'var(--text-3)',
+                  marginBottom: 4,
+                }}
+              >
+                {section.label}
+              </div>
+              <div style={{ fontSize: 13, lineHeight: 1.7, color: 'var(--text-2)' }}>{section.body}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -597,248 +593,266 @@ export default function HomePage() {
 
   return (
     <>
-      <style>{`
-        :root {
-          --bg: #fafafa;
-          --surface: #f0efed;
-          --border: rgba(0,0,0,0.08);
-          --border-hover: rgba(0,0,0,0.18);
-          --text: #111;
-          --text-2: #555;
-          --text-3: #999;
-          --nav-bg: rgba(250,250,250,0.88);
-        }
-        @media (prefers-color-scheme: dark) {
-          :root {
-            --bg: #111;
-            --surface: #1c1c1e;
-            --border: rgba(255,255,255,0.08);
-            --border-hover: rgba(255,255,255,0.2);
-            --text: #f0f0f0;
-            --text-2: #aaa;
-            --text-3: #555;
-            --nav-bg: rgba(17,17,17,0.88);
-          }
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { background: var(--bg); }
-        body {
-          font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
-          background: var(--bg);
-          color: var(--text);
-          -webkit-font-smoothing: antialiased;
-        }
-        @keyframes fadein {
-          from { opacity: 0; transform: translateY(8px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        .fade-in { animation: fadein 0.4s ease both; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .spin { animation: spin 0.8s linear infinite; display: inline-block; }
-      `}</style>
-
-      {/* ── Nav ── */}
-      <nav
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 50,
-          background: 'var(--nav-bg)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          borderBottom: '0.5px solid var(--border)',
-          padding: '0 32px',
-          height: 52,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div
-            style={{
-              width: 24,
-              height: 24,
-              background: 'var(--text)',
-              borderRadius: 5,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <svg width="11" height="11" viewBox="0 0 11 11" fill="var(--bg)">
-              <rect x="0.5" y="0.5" width="4" height="4" rx="0.8" />
-              <rect x="6.5" y="0.5" width="4" height="4" rx="0.8" />
-              <rect x="0.5" y="6.5" width="4" height="4" rx="0.8" />
-              <rect x="6.5" y="6.5" width="4" height="4" rx="0.8" opacity="0.35" />
-            </svg>
-          </div>
-          <span style={{ fontSize: 13, fontWeight: 500, letterSpacing: '-0.01em' }}>
-            时光酿造所
-          </span>
-          <span style={{ fontSize: 13, color: 'var(--text-3)', fontWeight: 300 }}>/</span>
-          <span style={{ fontSize: 13, color: 'var(--text-2)' }}>活动图片直播</span>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: '50%',
-                background: '#22c55e',
-                display: 'inline-block',
-                flexShrink: 0,
-              }}
-            />
-            <span style={{ fontSize: 12, color: 'var(--text-3)' }}>Live</span>
-          </div>
-          <a
-            href="/admin/login"
-            style={{
-              fontSize: 12,
-              color: 'var(--text-3)',
-              textDecoration: 'none',
-              padding: '5px 10px',
-              borderRadius: 6,
-              border: '0.5px solid var(--border)',
-            }}
-          >
-            摄影师登录
-          </a>
-        </div>
-      </nav>
+      <style dangerouslySetInnerHTML={{ __html: PAGE_CSS }} />
 
       {/* ── Hero ── */}
       <div
         className="fade-in"
         style={{
-          padding: '44px 32px 28px',
-          borderBottom: '0.5px solid var(--border)',
-          textAlign: 'center',
+          position: 'relative',
+          width: '100%',
+          aspectRatio: '4 / 3',
+          maxHeight: 480,
+          overflow: 'hidden',
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 22 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={heroImageUrl}
-            alt="ChronoBrewery 门头"
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={heroImageUrl}
+          alt="ChronoBrewery 门头"
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background:
+              'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 35%, rgba(0,0,0,0.92) 100%)',
+          }}
+        />
+
+        {/* Top badges */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 16,
+            left: 16,
+            right: 16,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <a
+            href="/admin/login"
             style={{
-              width: 'min(100%, 560px)',
-              height: 'auto',
-              display: 'block',
-              objectFit: 'contain',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '6px 14px 6px 6px',
+              borderRadius: 20,
+              background: 'rgba(20,18,14,0.45)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              border: '0.5px solid rgba(255,255,255,0.15)',
+              textDecoration: 'none',
             }}
-          />
+          >
+            <div
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: '50%',
+                background: '#f2ead9',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <svg width="10" height="10" viewBox="0 0 11 11" fill="#1a1712">
+                <rect x="0.5" y="0.5" width="4" height="4" rx="0.8" />
+                <rect x="6.5" y="0.5" width="4" height="4" rx="0.8" />
+                <rect x="0.5" y="6.5" width="4" height="4" rx="0.8" />
+                <rect x="6.5" y="6.5" width="4" height="4" rx="0.8" opacity="0.35" />
+              </svg>
+            </div>
+            <span style={{ fontSize: 13, fontWeight: 500, color: '#fff' }}>时光酿造所</span>
+          </a>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '6px 12px',
+              borderRadius: 20,
+              background: 'rgba(220,38,38,0.85)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+            }}
+          >
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fff' }} />
+            <span style={{ fontSize: 11, fontWeight: 600, color: '#fff', letterSpacing: '0.05em' }}>
+              LIVE
+            </span>
+          </div>
+        </div>
+
+        {/* Bottom overlay copy */}
+        <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: '0 20px 22px' }}>
+          <div
+            style={{
+              fontSize: 11,
+              letterSpacing: '0.12em',
+              color: 'rgba(255,255,255,0.65)',
+              textTransform: 'uppercase',
+              marginBottom: 8,
+            }}
+          >
+            ChronoBrewery · Photo Live
+          </div>
+          <h1
+            style={{
+              fontSize: 'clamp(24px, 6vw, 34px)',
+              fontWeight: 600,
+              color: '#fff',
+              letterSpacing: '-0.02em',
+              lineHeight: 1.2,
+              marginBottom: 6,
+            }}
+          >
+            活动图片，实时直播
+          </h1>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)' }}>
+            点击图片查看大图 · 长按图片保存到手机
+          </p>
+        </div>
+      </div>
+
+      {/* ── Stats / Countdown ── */}
+      <div style={{ background: '#1a1712', padding: '16px 20px 18px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', gap: 24 }}>
+            <div>
+              <div style={{ fontSize: 20, fontWeight: 600, color: '#fff', letterSpacing: '-0.01em' }}>
+                {loading ? '…' : photos.length}
+              </div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>张照片</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 20, fontWeight: 600, color: '#fff', letterSpacing: '-0.01em' }}>
+                {formatDate(EVENT_DATETIME.toISOString())}
+              </div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>活动日期</div>
+            </div>
+          </div>
+          <button
+            onClick={fetchPhotos}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              fontSize: 12,
+              color: 'rgba(255,255,255,0.7)',
+              background: 'rgba(255,255,255,0.08)',
+              border: '0.5px solid rgba(255,255,255,0.15)',
+              borderRadius: 8,
+              padding: '6px 12px',
+              cursor: 'pointer',
+            }}
+          >
+            <span className={loading ? 'spin' : ''}>
+              <RefreshIcon />
+            </span>
+            刷新
+          </button>
         </div>
         <div
           style={{
-            fontSize: 11,
-            letterSpacing: '0.1em',
-            color: 'var(--text-3)',
-            textTransform: 'uppercase',
-            marginBottom: 14,
+            marginTop: 16,
+            paddingTop: 14,
+            borderTop: '0.5px solid rgba(255,255,255,0.1)',
+            display: 'flex',
+            alignItems: 'baseline',
+            justifyContent: 'space-between',
           }}
         >
-          ChronoBrewery · Photo Live
-        </div>
-        <h1
-          style={{
-            fontSize: 'clamp(26px, 3.5vw, 40px)',
-            fontWeight: 500,
-            letterSpacing: '-0.025em',
-            lineHeight: 1.12,
-            marginBottom: 12,
-          }}
-        >
-          活动图片
-          <span style={{ color: 'var(--text-3)' }}>，实时直播</span>
-        </h1>
-        <p
-          style={{
-            fontSize: 14,
-            color: 'var(--text-2)',
-            lineHeight: 1.65,
-            maxWidth: 400,
-            marginBottom: 28,
-            marginLeft: 'auto',
-            marginRight: 'auto',
-          }}
-        >
-          点击图片查看大图，长按图片即可保存到手机。
-        </p>
-
-        <div style={{ display: 'flex', gap: 0, flexWrap: 'wrap', justifyContent: 'center' }}>
-          {[
-            { n: loading ? '…' : String(photos.length), l: '张照片' },
-            {
-              n: formatDate(EVENT_DATETIME.toISOString()),
-              l: '活动日期',
-            },
-            {
-              n: countdownMs === null ? '—' : formatCountdown(countdownMs),
-              l: '距开场',
-            },
-          ].map((s, i) => (
-            <div
-              key={i}
-              style={{
-                paddingRight: 28,
-                marginRight: 28,
-                borderRight: i < 2 ? '0.5px solid var(--border)' : 'none',
-                textAlign: 'center',
-              }}
-            >
-              <div style={{ fontSize: 20, fontWeight: 500, letterSpacing: '-0.02em' }}>
-                {s.n}
-              </div>
-              <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 2 }}>{s.l}</div>
-            </div>
-          ))}
+          <div
+            style={{
+              fontSize: 'clamp(20px, 6vw, 26px)',
+              fontWeight: 700,
+              color: '#e8c477',
+              letterSpacing: '-0.01em',
+              fontVariantNumeric: 'tabular-nums',
+            }}
+          >
+            {countdownMs === null ? '—' : formatCountdown(countdownMs)}
+          </div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>距开场</div>
         </div>
       </div>
 
-      <ActivityInfo />
+      <NoticeCard />
 
-      {/* ── Toolbar ── */}
+      {/* ── Album Card ── */}
       <div
+        className="card"
         style={{
-          padding: '12px 32px',
-          borderBottom: '0.5px solid var(--border)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          margin: '16px 16px 0',
+          borderRadius: 16,
+          background: 'var(--card)',
+          border: '0.5px solid var(--border)',
+          overflow: 'hidden',
         }}
       >
-        <span style={{ fontSize: 12, color: 'var(--text-3)' }}>
-          {loading ? '加载中…' : `共 ${photos.length} 张 · 按时间倒序`}
-        </span>
-        <button
-          onClick={fetchPhotos}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 18px' }}>
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: '#e8ecf5',
+              color: '#3a4f8a',
+              flexShrink: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <AlbumIcon />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>活动相册</div>
+            <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>
+              {loading ? '加载中…' : `共 ${photos.length} 张 · 按时间倒序`}
+            </div>
+          </div>
+          <button
+            onClick={fetchPhotos}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 30,
+              height: 30,
+              color: 'var(--text-2)',
+              background: 'transparent',
+              border: '0.5px solid var(--border)',
+              borderRadius: 8,
+              cursor: 'pointer',
+            }}
+          >
+            <span className={loading ? 'spin' : ''}>
+              <RefreshIcon />
+            </span>
+          </button>
+        </div>
+        <div
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
+            margin: '0 18px 14px',
+            padding: '10px 12px',
+            borderRadius: 10,
+            background: '#f6e9c9',
             fontSize: 12,
-            color: 'var(--text-2)',
-            background: 'transparent',
-            border: '0.5px solid var(--border)',
-            borderRadius: 6,
-            padding: '5px 12px',
-            cursor: 'pointer',
+            color: '#96731f',
+            lineHeight: 1.5,
           }}
         >
-          <span className={loading ? 'spin' : ''}>
-            <RefreshIcon />
-          </span>
-          刷新
-        </button>
-      </div>
+          长按图片保存 · 点击查看大图 · 转发给朋友
+        </div>
 
       {/* ── Main ── */}
-      <main style={{ padding: '24px 32px 64px' }}>
+      <main style={{ padding: '0 18px 18px' }}>
 
         {/* Loading skeleton */}
         {loading && (
@@ -944,12 +958,12 @@ export default function HomePage() {
           })
         }
       </main>
+      </div>
 
       {/* ── Footer ── */}
       <footer
         style={{
-          borderTop: '0.5px solid var(--border)',
-          padding: '20px 32px',
+          padding: '20px 32px 32px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
