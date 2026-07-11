@@ -65,11 +65,20 @@ function buildItem(file: File, index: number): UploadItem {
   };
 }
 
+function todayDateInputValue() {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
 export function UploadPanel({ username, activitySlug }: UploadPanelProps) {
   const [items, setItems] = useState<UploadItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [globalError, setGlobalError] = useState("");
+  const [takenAtDate, setTakenAtDate] = useState(todayDateInputValue);
 
   const summary = useMemo(() => {
     const successCount = items.filter((item) => item.status === "success").length;
@@ -161,6 +170,21 @@ export function UploadPanel({ username, activitySlug }: UploadPanelProps) {
     }
   }
 
+  async function reportTakenAt(objectKeys: string[], takenAt: string) {
+    if (!objectKeys.length) return;
+    try {
+      await fetch("/api/photos/set-dates", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ objectKeys, takenAt })
+      });
+    } catch {
+      setGlobalError("照片已上传成功，但保存拍摄日期失败，请重试或联系开发者。");
+    }
+  }
+
   async function uploadFiles(files: File[]) {
     if (!files.length) {
       return;
@@ -176,6 +200,8 @@ export function UploadPanel({ username, activitySlug }: UploadPanelProps) {
     const nextItems = acceptedFiles.map((file, index) => buildItem(file, index));
     setItems((prev) => [...nextItems, ...prev]);
     setIsUploading(true);
+
+    const uploadedObjectKeys: string[] = [];
 
     try {
       for (let i = 0; i < acceptedFiles.length; i += 1) {
@@ -194,6 +220,7 @@ export function UploadPanel({ username, activitySlug }: UploadPanelProps) {
             progress: 100,
             objectKey: policy.objectKey
           });
+          uploadedObjectKeys.push(policy.objectKey);
 
           // Do not block UI success state on metadata callback.
           void reportPhotoMetadata({
@@ -206,6 +233,11 @@ export function UploadPanel({ username, activitySlug }: UploadPanelProps) {
           const message = error instanceof Error ? error.message : "上传失败";
           setItemPatch(itemId, { status: "error", error: message });
         }
+      }
+
+      // Written once for the whole batch so concurrent per-file writes can't race each other.
+      if (takenAtDate !== todayDateInputValue() && uploadedObjectKeys.length) {
+        await reportTakenAt(uploadedObjectKeys, `${takenAtDate}T12:00:00+08:00`);
       }
     } finally {
       setIsUploading(false);
@@ -230,6 +262,24 @@ export function UploadPanel({ username, activitySlug }: UploadPanelProps) {
         <button className="btn btn-secondary" onClick={handleLogout} type="button">
           退出登录
         </button>
+      </div>
+
+      <div className="stack" style={{ gap: 6 }}>
+        <label htmlFor="taken-at-date" style={{ fontWeight: 600 }}>
+          照片日期
+        </label>
+        <input
+          className="input"
+          id="taken-at-date"
+          max={todayDateInputValue()}
+          onChange={(event) => setTakenAtDate(event.target.value || todayDateInputValue())}
+          style={{ maxWidth: 220 }}
+          type="date"
+          value={takenAtDate}
+        />
+        <p className="muted" style={{ margin: 0, fontSize: 13 }}>
+          默认今天；如果是补传老照片（比如装修记录），改成实际拍摄的日期，下面选好的图片都会用这个日期。
+        </p>
       </div>
 
       <div
