@@ -650,7 +650,7 @@ function NoticeCard() {
 const STORY_SECTIONS: { title: string; body: string }[] = [
   {
     title: '01 名字由来',
-    body: '我们叫「时光酿造所」，英文 ChronoBrewery。Chronobrewery，源自希腊语 chronos（时间）。时光酿造所，酿的不只是啤酒，也是时间本身\n时间是最大的成本。我们愿意把时间交给一杯酒，让它自然发酵，不被催熟。\nBrew Your Life.',
+    body: '我们叫「时光酿造所」，英文 ChronoBrewery，源自希腊语 chronos（时间）。时光酿造所，酿的不只是啤酒，也是时间本身\n我们愿意把时间交给一杯酒，让它自然发酵。\nBrew Your Life.',
   },
   {
     title: '02 从香港到深圳',
@@ -658,7 +658,7 @@ const STORY_SECTIONS: { title: string; body: string }[] = [
   },
   {
     title: '03 我们的愿景',
-    body: '酿好喝的啤酒，也提供一个让大家放松喝酒的地方。\n发酵罐就在店里，从酿造到入杯，不到 5 米。酒会变化，也可能失败，但每一杯都真实发生在这里。\n希望你走进来的第一感觉，不是"终于来了"，而是——\n它一直就该在这里。',
+    body: '酿好喝的啤酒，也提供一个让大家放松喝酒的地方。\n发酵罐就在店里，从酿造到入杯，不到 5 米。酒会变化，也可能失败，但每一杯都真实发生在这里。\n希望你走进来的第一感觉，不是"终于来了"，而是——它一直就该在这里。',
   },
 ]
 
